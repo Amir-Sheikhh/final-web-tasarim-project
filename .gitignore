@@ -1,0 +1,14 @@
+node_modules/
+neo4j-runtime/
+run-logs/
+.env
+*.log
+*.pid
+docs/rendered-report/
+docs/manual-pdf/
+docs/image-render-tests/
+docs/docx-media/
+docs/report.zip
+public/uploads/
+.DS_Store
+Thumbs.db

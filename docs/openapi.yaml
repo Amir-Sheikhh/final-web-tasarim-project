@@ -1,0 +1,447 @@
+openapi: 3.1.0
+info:
+  title: GraphLink Social Graph API
+  version: 1.1.0
+  description: REST API for a Neo4j-backed social graph application with JWT cookies, posts, follows, notifications, and graph analytics.
+servers:
+  - url: http://localhost:3000
+security:
+  - cookieAuth: []
+tags:
+  - name: Health
+  - name: Auth
+  - name: Social
+  - name: Graph
+  - name: Monitoring
+paths:
+  /api/health:
+    get:
+      tags: [Health]
+      security: []
+      summary: Basic API health check
+      responses:
+        "200":
+          description: Service is running.
+  /api/monitoring/status:
+    get:
+      tags: [Monitoring]
+      security: []
+      summary: API, frontend, and Neo4j runtime status
+      responses:
+        "200":
+          description: All checks passed.
+        "503":
+          description: One or more checks failed.
+  /api/auth/demo-accounts:
+    get:
+      tags: [Auth]
+      security: []
+      summary: List public demo accounts
+      responses:
+        "200":
+          description: Demo credentials and account list.
+  /api/auth/register:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Register a new user and set auth cookies
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User registered.
+        "400":
+          description: Validation error.
+  /api/auth/login:
+    post:
+      tags: [Auth]
+      security: []
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Login succeeded.
+        "401":
+          description: Invalid credentials.
+  /api/auth/refresh:
+    post:
+      tags: [Auth]
+      security:
+        - refreshCookie: []
+      summary: Rotate refresh session and issue a new access token
+      responses:
+        "200":
+          description: Session refreshed.
+        "401":
+          description: Refresh token missing or invalid.
+  /api/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Revoke current refresh session and clear cookies
+      responses:
+        "204":
+          description: Logged out.
+  /api/auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current authenticated user
+      responses:
+        "200":
+          description: Current user profile.
+        "401":
+          description: Authentication required.
+    patch:
+      tags: [Auth]
+      summary: Update current user profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProfileUpdateRequest"
+      responses:
+        "200":
+          description: Updated profile.
+  /api/dashboard:
+    get:
+      tags: [Social]
+      summary: Dashboard feed, graph insights, suggestions, and stats
+      parameters:
+        - $ref: "#/components/parameters/TargetId"
+      responses:
+        "200":
+          description: Dashboard payload.
+  /api/users:
+    get:
+      tags: [Social]
+      summary: List users visible to the current user
+      responses:
+        "200":
+          description: User list.
+  /api/users/{userId}:
+    get:
+      tags: [Social]
+      summary: Get a user profile, social links, posts, and suggestions
+      parameters:
+        - $ref: "#/components/parameters/UserId"
+      responses:
+        "200":
+          description: User profile details.
+  /api/groups:
+    get:
+      tags: [Social]
+      summary: List demo social groups
+      responses:
+        "200":
+          description: Group list.
+  /api/follows:
+    post:
+      tags: [Social]
+      summary: Follow a target user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [targetId]
+              properties:
+                targetId:
+                  type: string
+      responses:
+        "204":
+          description: Follow relationship created.
+    delete:
+      tags: [Social]
+      summary: Unfollow a target user
+      parameters:
+        - $ref: "#/components/parameters/TargetId"
+      responses:
+        "204":
+          description: Follow relationship deleted.
+  /api/posts:
+    get:
+      tags: [Social]
+      summary: List posts
+      responses:
+        "200":
+          description: Post feed.
+    post:
+      tags: [Social]
+      summary: Create a post
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostWriteRequest"
+      responses:
+        "201":
+          description: Post created.
+  /api/posts/{postId}:
+    get:
+      tags: [Social]
+      summary: Get post details
+      parameters:
+        - $ref: "#/components/parameters/PostId"
+      responses:
+        "200":
+          description: Post details.
+    patch:
+      tags: [Social]
+      summary: Update a post owned by the current user or admin
+      parameters:
+        - $ref: "#/components/parameters/PostId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PostWriteRequest"
+      responses:
+        "200":
+          description: Post updated.
+    delete:
+      tags: [Social]
+      summary: Delete a post owned by the current user or admin
+      parameters:
+        - $ref: "#/components/parameters/PostId"
+      responses:
+        "204":
+          description: Post deleted.
+  /api/posts/{postId}/like:
+    post:
+      tags: [Social]
+      summary: Like a post
+      parameters:
+        - $ref: "#/components/parameters/PostId"
+      responses:
+        "204":
+          description: Like created.
+    delete:
+      tags: [Social]
+      summary: Remove a post like
+      parameters:
+        - $ref: "#/components/parameters/PostId"
+      responses:
+        "204":
+          description: Like removed.
+  /api/posts/{postId}/comments:
+    post:
+      tags: [Social]
+      summary: Add a comment to a post
+      parameters:
+        - $ref: "#/components/parameters/PostId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content:
+                  type: string
+                  minLength: 2
+                  maxLength: 280
+      responses:
+        "201":
+          description: Comment created.
+  /api/posts/{postId}/comments/{commentId}:
+    delete:
+      tags: [Social]
+      summary: Delete a comment
+      parameters:
+        - $ref: "#/components/parameters/PostId"
+        - name: commentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Comment deleted.
+  /api/notifications:
+    get:
+      tags: [Social]
+      summary: List notifications for the current user
+      responses:
+        "200":
+          description: Notification list.
+  /api/notifications/read-all:
+    patch:
+      tags: [Social]
+      summary: Mark all notifications as read
+      responses:
+        "200":
+          description: Updated notifications.
+  /api/notifications/{notificationId}/read:
+    patch:
+      tags: [Social]
+      summary: Mark one notification as read
+      parameters:
+        - name: notificationId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Updated notification.
+  /api/graph/status:
+    get:
+      tags: [Graph]
+      summary: Check APOC and GDS runtime availability
+      responses:
+        "200":
+          description: Graph plugin status.
+  /api/graph/network:
+    get:
+      tags: [Graph]
+      summary: Get Cytoscape-compatible graph payload
+      responses:
+        "200":
+          description: Nodes and edges.
+  /api/graph/communities:
+    get:
+      tags: [Graph]
+      summary: Get Louvain community preview
+      responses:
+        "200":
+          description: Community results.
+  /api/graph/pagerank:
+    get:
+      tags: [Graph]
+      summary: Get PageRank leaders
+      responses:
+        "200":
+          description: PageRank scores.
+  /api/graph/embeddings:
+    get:
+      tags: [Graph]
+      summary: Get FastRP embedding preview
+      responses:
+        "200":
+          description: Embedding vectors.
+  /api/graph/shortest-path:
+    get:
+      tags: [Graph]
+      summary: Get shortest path from current user to a target user
+      parameters:
+        - $ref: "#/components/parameters/TargetId"
+      responses:
+        "200":
+          description: Shortest path result.
+  /api/demo/reset:
+    post:
+      tags: [Social]
+      summary: Reset demo graph data
+      description: Requires admin role.
+      responses:
+        "204":
+          description: Demo graph reset.
+        "403":
+          description: Admin role required.
+components:
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: access_token
+    refreshCookie:
+      type: apiKey
+      in: cookie
+      name: refresh_token
+  parameters:
+    UserId:
+      name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+    PostId:
+      name: postId
+      in: path
+      required: true
+      schema:
+        type: string
+    TargetId:
+      name: targetId
+      in: query
+      required: false
+      schema:
+        type: string
+  schemas:
+    LoginRequest:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+    RegisterRequest:
+      type: object
+      required: [name, email, password, headline]
+      properties:
+        name:
+          type: string
+          minLength: 2
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        headline:
+          type: string
+        city:
+          type: string
+        bio:
+          type: string
+        color:
+          type: string
+          pattern: "^#[0-9a-fA-F]{6}$"
+    ProfileUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        headline:
+          type: string
+        city:
+          type: string
+        bio:
+          type: string
+        color:
+          type: string
+        removeProfileImage:
+          type: boolean
+    PostWriteRequest:
+      type: object
+      properties:
+        content:
+          type: string
+          maxLength: 500
+        media:
+          type: object
+          properties:
+            dataUrl:
+              type: string
+            name:
+              type: string
+            type:
+              type: string
+        removeMedia:
+          type: boolean

@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elite Circle | Social Graph Platform</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      try {
+        document.documentElement.dataset.theme = localStorage.getItem("graphlink-theme") || "dark";
+        const accentColor = localStorage.getItem("graphlink-accent");
+        const backgroundColor = localStorage.getItem("graphlink-background");
+
+        if (/^#[0-9a-fA-F]{6}$/.test(accentColor || "")) {
+          document.documentElement.style.setProperty("--teal", accentColor);
+        }
+
+        if (/^#[0-9a-fA-F]{6}$/.test(backgroundColor || "")) {
+          document.documentElement.style.setProperty("--bg", backgroundColor);
+          document.documentElement.style.setProperty("--body-bg", backgroundColor);
+        }
+      } catch (_error) {
+        document.documentElement.dataset.theme = "dark";
+      }
+    </script>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+
+    <section id="openingSlideshow" class="opening-slideshow" aria-label="Elite Circle tanitim slaytlari">
+      <div class="opening-brand">
+        <img class="brand-logo brand-logo-small" src="/assets/elite-circle-logo.svg" alt="Elite Circle" />
+      </div>
+      <div class="opening-stage">
+        <article class="opening-slide">
+          <p class="eyebrow">Elite Circle Social</p>
+          <h2>Neo4j üzerinde yaşayan sosyal ağ.</h2>
+          <p>Kişiler, takipler, gönderiler ve beğeniler graph modeliyle tek yerde bağlanır.</p>
+        </article>
+        <article class="opening-slide">
+          <p class="eyebrow">Network Intelligence</p>
+          <h2>Bağlantıları sadece listeleme, keşfet.</h2>
+          <p>Shortest path, mutual connections, PageRank ve community verileri arayüzde hazır akar.</p>
+        </article>
+        <article class="opening-slide">
+          <p class="eyebrow">Live Network UI</p>
+          <h2>Elite Circle herkesi anlamlı bir sosyal çemberde toplar.</h2>
+          <p>Canlı network görünümü, auth akışı ve API paneli aynı full-stack deneyimde buluşur.</p>
+        </article>
+      </div>
+      <div class="opening-network" aria-hidden="true">
+        <span class="opening-dot opening-dot-main">EC</span>
+        <span class="opening-dot opening-dot-one"></span>
+        <span class="opening-dot opening-dot-two"></span>
+        <span class="opening-dot opening-dot-three"></span>
+        <span class="opening-line opening-line-one"></span>
+        <span class="opening-line opening-line-two"></span>
+        <span class="opening-line opening-line-three"></span>
+      </div>
+    </section>
+
+    <div class="app-shell">
+      <div class="theme-bar" aria-label="Tema secimi">
+        <div class="theme-toggle" role="group" aria-label="Tema secimi">
+          <button id="darkModeButton" class="theme-option" type="button" data-theme-value="dark">Dark</button>
+          <button id="lightModeButton" class="theme-option" type="button" data-theme-value="light">Light</button>
+        </div>
+        <div class="ui-color-control" aria-label="Arayuz rengi">
+          <label for="uiColorInput">UI rengi</label>
+          <input id="uiColorInput" type="color" value="#2dd4bf" />
+          <button id="resetUiColorButton" class="ui-color-reset" type="button">Sifirla</button>
+        </div>
+        <div class="ui-color-control" aria-label="Arka plan rengi">
+          <label for="backgroundColorInput">Arka plan</label>
+          <input id="backgroundColorInput" type="color" value="#08141f" />
+          <button id="resetBackgroundColorButton" class="ui-color-reset" type="button">Sifirla</button>
+        </div>
+      </div>
+
+      <section id="authGate" class="panel auth-panel">
+        <div class="auth-cover">
+          <div class="section-head auth-copy">
+            <img class="brand-logo auth-logo" src="/assets/elite-circle-logo.svg" alt="Elite Circle" />
+            <p class="eyebrow">Elite Circle Auth</p>
+            <h1>Elite Circle hesabına giriş yapın</h1>
+            <div class="auth-entry-actions" aria-label="Giriş seçenekleri">
+              <button class="auth-entry-card active" type="button" data-auth-mode="register">
+                <strong>Kayıt Ol</strong>
+                <span>Yeni hesap oluşturmak için.</span>
+              </button>
+              <button class="auth-entry-card" type="button" data-auth-mode="login">
+                <strong>Giriş Yap</strong>
+                <span>Mevcut hesabınıza giriş yapın.</span>
+              </button>
+              <button class="auth-entry-card" type="button" data-auth-mode="demo">
+                <strong>Demo Kullanıcılar</strong>
+                <span>Hesap oluşturmadan denemek için.</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="auth-showcase" aria-hidden="true">
+            <div class="auth-node auth-node-main">EC</div>
+            <div class="auth-node auth-node-a"></div>
+            <div class="auth-node auth-node-b"></div>
+            <div class="auth-node auth-node-c"></div>
+            <div class="auth-edge auth-edge-a"></div>
+            <div class="auth-edge auth-edge-b"></div>
+            <div class="auth-edge auth-edge-c"></div>
+            <div class="auth-showcase-copy">
+              <strong>Elite Circle</strong>
+              <span>Sosyal graph deneyimi</span>
+            </div>
+            <div class="auth-slideshow">
+              <div class="auth-slide">
+                <span>01</span>
+                <strong>Elite Circle Social</strong>
+                <p>Kullanıcılar, takipler, gönderiler ve etkileşimler tek graph üzerinde modellenir.</p>
+              </div>
+              <div class="auth-slide">
+                <span>02</span>
+                <strong>Neo4j Insights</strong>
+                <p>Shortest path, mutual connections, PageRank ve community analizleri hazır panelde akar.</p>
+              </div>
+              <div class="auth-slide">
+                <span>03</span>
+                <strong>Live Network UI</strong>
+                <p>Cytoscape görünümü sosyal ağı keşfedilebilir, temiz ve hızlı bir arayüze taşır.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button id="authPanelBackdrop" class="auth-panel-backdrop hidden" type="button" aria-label="Formu kapat"></button>
+
+        <div class="auth-grid">
+          <form id="loginForm" class="stack auth-card auth-form-card login-card" data-auth-panel="login">
+            <h3>Giriş Yap</h3>
+            <label>
+              E-posta
+              <input name="email" type="email" placeholder="ornek@elitecircle.local" required />
+            </label>
+            <label>
+              Sifre
+              <input name="password" type="password" placeholder="En az 8 karakter" required />
+            </label>
+            <button class="button button-primary" type="submit">Oturum Aç</button>
+          </form>
+
+          <form id="registerForm" class="stack auth-card auth-form-card register-card" data-auth-panel="register">
+            <h3>Kayıt Ol</h3>
+            <label>
+              Ad soyad
+              <input name="name" type="text" placeholder="Orn. Melis Cetin" required />
+            </label>
+            <label>
+              Baslik
+              <input name="headline" type="text" placeholder="Orn. Mobile Developer" required />
+            </label>
+            <label>
+              E-posta
+              <input name="email" type="email" placeholder="melis@graphlink.local" required />
+            </label>
+            <label>
+              Sifre
+              <input name="password" type="password" placeholder="En az 8 karakter" required />
+            </label>
+            <label>
+              Sehir
+              <input name="city" type="text" placeholder="Orn. Istanbul" />
+            </label>
+            <label>
+              Bio
+              <textarea name="bio" rows="3" placeholder="Kisa profil aciklamasi"></textarea>
+            </label>
+            <label>
+              Profil rengi
+              <input name="color" type="color" value="#0f766e" />
+            </label>
+            <label class="media-picker">
+              Profil fotografi
+              <input id="registerProfileImageInput" name="profileImage" type="file" accept="image/jpeg,image/png,image/webp,image/gif" />
+            </label>
+            <div id="registerProfileImagePreview" class="media-preview hidden"></div>
+            <button class="button button-secondary" type="submit">Yeni hesap olustur</button>
+          </form>
+        </div>
+
+        <div class="auth-card" data-auth-panel="demo">
+          <div class="section-head compact">
+            <p class="eyebrow">Demo hesaplari</p>
+            <h2>Demo Users</h2>
+          </div>
+          <p class="mini-copy">Tüm demo hesapları ortak şifre kullanır: <strong id="demoPassword">demo12345</strong></p>
+          <div id="demoAccounts" class="demo-accounts"></div>
+        </div>
+
+        <p id="authMessage" class="status-message"></p>
+      </section>
+
+      <div id="appContent" class="hidden">
+        <nav class="app-nav panel" aria-label="Ana gezinme">
+          <div class="app-nav-brand">
+            <img class="brand-logo nav-logo" src="/assets/elite-circle-logo.svg" alt="Elite Circle" />
+          </div>
+          <div class="app-nav-links" role="tablist" aria-label="Kategoriler">
+            <button class="nav-tab active" type="button" data-category="home" role="tab" aria-selected="true">Home</button>
+            <button class="nav-tab" type="button" data-category="share" role="tab" aria-selected="false">Yeni gonderi</button>
+            <button class="nav-tab" type="button" data-category="people" role="tab" aria-selected="false">Kisiler</button>
+            <button class="nav-tab" type="button" data-category="notifications" role="tab" aria-selected="false">Bildirimler</button>
+            <button class="nav-tab" type="button" data-category="graph" role="tab" aria-selected="false">Graph</button>
+            <button class="nav-tab" type="button" data-category="overview" role="tab" aria-selected="false">Ozet</button>
+          </div>
+        </nav>
+
+        <header class="hero panel">
+          <div class="hero-copy">
+            <p class="eyebrow">Neo4j + JWT + Cytoscape + GDS</p>
+            <img class="brand-logo hero-logo" src="/assets/elite-circle-logo.svg" alt="Elite Circle" />
+            <p class="hero-text">
+              Kullanici, takip, gonderi ve begeni verilerini Neo4j graph yapisinda tutan; auth, API dokumantasyonu ve
+              algoritma panelleri eklenmis full-stack sosyal ag demosu.
+            </p>
+            <div class="hero-badges">
+              <span>Elite Network</span>
+              <span>Smart Notifications</span>
+              <span>Graph Insights</span>
+            </div>
+            <div id="statsGrid" class="stats-grid"></div>
+          </div>
+
+          <div class="hero-controls">
+            <div id="currentUserCard" class="control-card session-card"></div>
+
+            <div class="control-card">
+              <label for="targetSelect">Karsilastirilacak kisi</label>
+              <select id="targetSelect"></select>
+            </div>
+
+            <div class="control-card control-actions">
+              <button id="refreshButton" class="button button-primary" type="button">Veriyi yenile</button>
+              <button id="resetDemoButton" class="button button-secondary hidden" type="button">Demo verisini sifirla</button>
+              <button id="logoutButton" class="button button-ghost" type="button">Cikis yap</button>
+            </div>
+
+            <div class="control-card quick-links">
+              <a class="link-chip" href="/docs" target="_blank" rel="noreferrer">API Docs</a>
+              <a class="link-chip" href="/openapi.yaml" target="_blank" rel="noreferrer">openapi.yaml</a>
+              <a class="link-chip" href="http://127.0.0.1:7474" target="_blank" rel="noreferrer">Neo4j Browser</a>
+            </div>
+
+            <p id="statusMessage" class="status-message">Hazirlaniyor...</p>
+          </div>
+        </header>
+
+        <main class="dashboard">
+          <section class="panel form-panel dashboard-section" data-category-panel="share">
+            <div class="section-head">
+              <p class="eyebrow">Paylasim</p>
+              <h2>Yeni gonderi</h2>
+            </div>
+
+            <form id="postForm" class="stack">
+              <label>
+                Durum guncellemesi
+                <textarea name="content" rows="5" placeholder="Bugun graph tarafinda ne yaptiniz?"></textarea>
+              </label>
+              <label class="media-picker">
+                Fotograf veya video
+                <input id="postMediaInput" name="media" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,video/ogg" />
+              </label>
+              <div id="postMediaPreview" class="media-preview hidden"></div>
+              <button class="button button-primary" type="submit">Gonderi paylas</button>
+            </form>
+
+            <div class="auth-card compact-card">
+              <div class="section-head compact">
+                <p class="eyebrow">Plugin durumu</p>
+                <h2>Graph Runtime</h2>
+              </div>
+              <div id="pluginStatus" class="mini-list"></div>
+            </div>
+          </section>
+
+          <section class="panel people-panel dashboard-section" data-category-panel="people">
+            <div class="section-head">
+              <p class="eyebrow">Sosyal graph</p>
+              <h2>Kisiler</h2>
+            </div>
+            <label class="people-search">
+              Kisi ara
+              <input id="peopleSearchInput" type="search" placeholder="Ad, baslik, sehir veya bio ara" autocomplete="off" />
+            </label>
+            <div id="profileDetail" class="profile-detail hidden"></div>
+            <div id="usersList" class="people-list"></div>
+          </section>
+
+          <section class="panel feed-panel dashboard-section" data-category-panel="home">
+            <div class="section-head">
+              <p class="eyebrow">Canli akis</p>
+              <h2>Gonderiler</h2>
+            </div>
+            <div id="postsList" class="posts-list"></div>
+          </section>
+
+          <section class="panel notifications-panel dashboard-section" data-category-panel="notifications">
+            <div class="section-head">
+              <p class="eyebrow">Notification Center</p>
+              <h2>Bildirimler</h2>
+            </div>
+            <div id="notificationsSummary" class="notification-summary"></div>
+            <div id="notificationsList" class="notifications-list"></div>
+          </section>
+
+          <section class="panel insights-panel dashboard-section" data-category-panel="graph">
+            <div class="section-head">
+              <p class="eyebrow">Graph sorgulari</p>
+              <h2>Analiz paneli</h2>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-card-head">
+                <h3>En kisa yol</h3>
+                <span id="pathMeta" class="meta-chip">Hazirlaniyor</span>
+              </div>
+              <div id="pathView" class="path-view"></div>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-card-head">
+                <h3>Cytoscape graph görünümü</h3>
+                <span class="meta-chip">2 hop network</span>
+              </div>
+              <div id="graphCanvas" class="graph-canvas"></div>
+            </div>
+
+            <div class="insight-grid">
+              <div class="insight-card">
+                <h3>2. derece baglantilar</h3>
+                <div id="secondDegreeList" class="mini-list"></div>
+              </div>
+              <div class="insight-card">
+                <h3>Ortak baglantilar</h3>
+                <div id="mutualList" class="mini-list"></div>
+              </div>
+              <div class="insight-card">
+                <h3>Tavsiye edilen kullanicilar</h3>
+                <div id="recommendationList" class="mini-list"></div>
+              </div>
+            </div>
+
+            <div class="insight-grid">
+              <div class="insight-card">
+                <h3>Louvain communities</h3>
+                <div id="communityList" class="mini-list"></div>
+              </div>
+              <div class="insight-card">
+                <h3>PageRank liderleri</h3>
+                <div id="pagerankList" class="mini-list"></div>
+              </div>
+              <div class="insight-card">
+                <h3>FastRP embedding preview</h3>
+                <div id="embeddingList" class="mini-list"></div>
+              </div>
+            </div>
+
+            <div class="insight-card">
+              <div class="insight-card-head">
+                <h3>Cypher ornekleri</h3>
+                <span class="meta-chip">ASCII art syntax</span>
+              </div>
+              <div id="cypherExamples" class="cypher-list"></div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <script src="/vendor/cytoscape/cytoscape.min.js"></script>
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

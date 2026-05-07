@@ -1,0 +1,7 @@
+flowchart LR
+  Browser[User Browser] -->|localhost:3000| Node[Node.js Express Server]
+  Node --> Public[Static public files]
+  Node --> Docs[Swagger and OpenAPI docs]
+  Node -->|Bolt 7687| Neo4j[(Local Neo4j Community)]
+  Neo4j --> Plugins[APOC + GDS Plugins]
+  Node --> Uploads[public/uploads media folder]

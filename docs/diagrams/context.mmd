@@ -1,0 +1,7 @@
+flowchart LR
+  User[Student / Developer User] --> Web[GraphLink Web App]
+  Web --> API[Node.js Express API]
+  API --> Neo4j[(Neo4j Graph Database)]
+  API --> GDS[Neo4j GDS Algorithms]
+  API --> APOC[APOC Procedures]
+  User -. views .-> Swagger[Swagger API Docs]

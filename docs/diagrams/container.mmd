@@ -1,0 +1,10 @@
+flowchart TB
+  Browser[Browser: HTML CSS JavaScript Cytoscape] -->|HTTPS/JSON| Express[Express REST API]
+  Express --> Auth[Auth Service]
+  Express --> Social[Social Service]
+  Express --> Graph[Graph Service]
+  Auth --> Neo4j[(Neo4j)]
+  Social --> Neo4j
+  Graph --> Neo4j
+  Graph --> GDS[Graph Data Science]
+  Express --> Static[Public Assets and Swagger UI]

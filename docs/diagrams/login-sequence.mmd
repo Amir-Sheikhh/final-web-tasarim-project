@@ -1,0 +1,14 @@
+sequenceDiagram
+  participant U as User
+  participant B as Browser
+  participant A as Express API
+  participant N as Neo4j
+  U->>B: Submit email/password
+  B->>A: POST /api/auth/login
+  A->>N: Match user by normalized email
+  N-->>A: User + password hash
+  A->>A: bcrypt compare + sign JWT
+  A->>N: Store hashed refresh session
+  A-->>B: Set HttpOnly cookies + user JSON
+  B->>A: GET /api/dashboard
+  A-->>B: Social graph dashboard
