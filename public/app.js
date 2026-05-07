@@ -1614,7 +1614,7 @@ async function loadDemoData() {
   }
   
   try {
-    const groupsPayload = await request("/api/social/groups", {}, false);
+    const groupsPayload = await request("/api/groups", {}, false);
     state.demoGroups = groupsPayload.groups || [];
   } catch (_error) {
     // Groups failed to load
