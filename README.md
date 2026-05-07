@@ -2,6 +2,11 @@
 
 BMU1208 Web Tabanli Programlama final projesi. GraphLink, Neo4j graph database uzerinde kullanici, takip, gonderi, begeni, yorum ve oturum verilerini modelleyen full-stack bir sosyal ag onerisi demosudur.
 
+## Hazirlayan
+
+- Ad Soyad: AMIR SHEIKH
+- Ogrenci No: 24080410155
+
 ## Demo / Ekran Goruntuleri
 
 Ekran goruntuleri `screenshots/` klasorundedir.
