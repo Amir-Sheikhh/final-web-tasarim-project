@@ -15,16 +15,27 @@ const state = {
   selectedProfile: null,
   openingProfileId: null,
   profileHistory: [],
+  profileTab: "about",
   registerProfileImage: null,
   profileEditImage: null,
   profileEditRemoveImage: false,
   activeCategory: "home",
+  categoryHistory: [],
   peopleSearch: "",
   demoPassword: "demo12345",
   demoAccounts: [],
   demoGroups: [],
   notifications: [],
-  authMode: null
+  authMode: null,
+  conversations: [],
+  activeConversation: null,
+  messageView: "persons",
+  messageSearch: "",
+  eventSource: null,
+  onlineUserIds: new Set(),
+  graphLoading: false,
+  graphLoaded: false,
+  cytoscapePromise: null
 };
 
 const elements = {
@@ -33,7 +44,11 @@ const elements = {
   resetUiColorButton: document.querySelector("#resetUiColorButton"),
   backgroundColorInput: document.querySelector("#backgroundColorInput"),
   resetBackgroundColorButton: document.querySelector("#resetBackgroundColorButton"),
+  appShell: document.querySelector(".app-shell"),
   openingSlideshow: document.querySelector("#openingSlideshow"),
+  appLogoButton: document.querySelector("#appLogoButton"),
+  appDetailsPanel: document.querySelector("#appDetailsPanel"),
+  navBackButton: document.querySelector("#navBackButton"),
   navTabs: document.querySelectorAll(".nav-tab"),
   categoryPanels: document.querySelectorAll("[data-category-panel]"),
   dashboard: document.querySelector(".dashboard"),
@@ -64,8 +79,20 @@ const elements = {
   profileDetail: document.querySelector("#profileDetail"),
   usersList: document.querySelector("#usersList"),
   postsList: document.querySelector("#postsList"),
+  notificationNavCount: document.querySelector("#notificationNavCount"),
   notificationsSummary: document.querySelector("#notificationsSummary"),
   notificationsList: document.querySelector("#notificationsList"),
+  messageNavCount: document.querySelector("#messageNavCount"),
+  messageCategoryTabs: document.querySelectorAll("[data-message-view]"),
+  messagingLayout: document.querySelector(".messaging-layout"),
+  messageSidebarProfile: document.querySelector("#messageSidebarProfile"),
+  messageSearchInput: document.querySelector("#messageSearchInput"),
+  conversationList: document.querySelector("#conversationList"),
+  chatHeader: document.querySelector("#chatHeader"),
+  pinnedMessages: document.querySelector("#pinnedMessages"),
+  chatMessages: document.querySelector("#chatMessages"),
+  typingIndicator: document.querySelector("#typingIndicator"),
+  messageForm: document.querySelector("#messageForm"),
   secondDegreeList: document.querySelector("#secondDegreeList"),
   mutualList: document.querySelector("#mutualList"),
   recommendationList: document.querySelector("#recommendationList"),
@@ -74,6 +101,7 @@ const elements = {
   embeddingList: document.querySelector("#embeddingList"),
   pluginStatus: document.querySelector("#pluginStatus"),
   pathView: document.querySelector("#pathView"),
+  pathExplanation: document.querySelector("#pathExplanation"),
   pathMeta: document.querySelector("#pathMeta"),
   cypherExamples: document.querySelector("#cypherExamples"),
   graphCanvas: document.querySelector("#graphCanvas"),
@@ -133,6 +161,23 @@ function avatarHtml(user, sizeClass = "") {
   return `<div class="${classes}" style="background:${escapeHtml(user?.color ?? "#0f766e")}">${escapeHtml(initial)}</div>`;
 }
 
+function profilePictureHtml(user, sizeClass = "") {
+  const classes = ["avatar", "avatar-profile-picture", sizeClass].filter(Boolean).join(" ");
+
+  if (user?.profileImageUrl) {
+    return `<div class="${classes} avatar-photo"><img src="${escapeHtml(user.profileImageUrl)}" alt="${escapeHtml(user.name ?? "Profil")}" /></div>`;
+  }
+
+  return `
+    <div class="${classes}" style="--profile-color:${escapeHtml(user?.color ?? "#0f766e")}">
+      <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">
+        <circle cx="24" cy="17" r="8.4"></circle>
+        <path d="M9.8 40.2c2.2-8 7.1-12.1 14.2-12.1s12 4.1 14.2 12.1"></path>
+      </svg>
+    </div>
+  `;
+}
+
 function renderImagePreview(container, image, clearButtonId) {
   if (!image) {
     container.classList.add("hidden");
@@ -184,6 +229,57 @@ function renderPostMediaElement(post, className = "post-media") {
   return post.mediaType === "video"
     ? `<video class="${className}" src="${escapeHtml(post.mediaUrl)}" controls playsinline></video>`
     : `<img class="${className}" src="${escapeHtml(post.mediaUrl)}" alt="${escapeHtml(post.mediaName || "Post medyasi")}" loading="lazy" />`;
+}
+
+function iconSvg(name, className = "action-icon") {
+  const icons = {
+    like: `
+      <svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M7.5 21H4.2A2.2 2.2 0 0 1 2 18.8v-7.1a2.2 2.2 0 0 1 2.2-2.2h3.3V21Z" fill="currentColor" opacity="0.32"></path>
+        <path d="M7.5 10.2 11.8 3a1.7 1.7 0 0 1 3.1 1l-.5 4.3h4.4a3 3 0 0 1 2.9 3.6l-1.1 5.2A4.9 4.9 0 0 1 15.8 21H7.5V10.2Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"></path>
+      </svg>
+    `,
+    comment: `
+      <svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M5 5.2h14a2.8 2.8 0 0 1 2.8 2.8v6.3A2.8 2.8 0 0 1 19 17.1h-7.1L6.6 21v-3.9H5a2.8 2.8 0 0 1-2.8-2.8V8A2.8 2.8 0 0 1 5 5.2Z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linejoin="round"></path>
+        <path d="M7.6 10.1h8.8M7.6 13.5h5.7" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"></path>
+      </svg>
+    `,
+    call: `
+      <svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6.8 4.2 9.4 7c.6.7.6 1.7.1 2.4l-1 1.2a12 12 0 0 0 5 5l1.2-1c.7-.5 1.8-.5 2.4.1l2.7 2.6c.6.6.6 1.5.1 2.1-.9 1.1-2.2 1.7-3.6 1.4C9.4 19.4 4.6 14.6 3.2 7.7 2.9 6.3 3.5 5 4.6 4.1c.6-.5 1.6-.5 2.2.1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+      </svg>
+    `,
+    video: `
+      <svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M4.8 7h9.1a2.2 2.2 0 0 1 2.2 2.2v5.6A2.2 2.2 0 0 1 13.9 17H4.8a2.2 2.2 0 0 1-2.2-2.2V9.2A2.2 2.2 0 0 1 4.8 7Z" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+        <path d="m16.2 10 4.7-2.4v8.8L16.2 14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+      </svg>
+    `,
+    settings: `
+      <svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="12" r="2.6" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
+        <path d="M12 2.8v2.1M12 19.1v2.1M3.7 7.2l1.8 1M18.5 15.8l1.8 1M3.7 16.8l1.8-1M18.5 8.2l1.8-1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+      </svg>
+    `,
+    bell: `
+      <svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="M6.2 10.4a5.8 5.8 0 0 1 11.6 0v3.1l1.7 3.1H4.5l1.7-3.1v-3.1Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+        <path d="M9.8 19a2.4 2.4 0 0 0 4.4 0" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+      </svg>
+    `,
+    pin: `
+      <svg class="${className}" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <path d="m14.8 3.8 5.4 5.4-2.6 1.1-2.8 4.7 1.1 1.1-1.8 1.8-3.1-3.1-5.1 5.1-1.8-1.8 5.1-5.1-3.1-3.1 1.8-1.8 1.1 1.1 4.7-2.8 1.1-2.6Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"></path>
+      </svg>
+    `
+  };
+
+  return icons[name] ?? "";
+}
+
+function srOnly(text) {
+  return `<span class="sr-only">${escapeHtml(text)}</span>`;
 }
 
 function clearPostMedia() {
@@ -261,38 +357,141 @@ function setAuthMode(mode) {
 
   elements.authGate.classList.toggle("is-auth-modal-open", isOpen);
   elements.authPanelBackdrop?.classList.toggle("hidden", !isOpen);
+
+  if (isOpen) {
+    window.setTimeout(() => {
+      const activePanel = document.querySelector(`[data-auth-panel="${nextMode}"]`);
+      activePanel?.querySelector("input, textarea, button:not([data-auth-close])")?.focus({ preventScroll: true });
+    }, 120);
+  }
+}
+
+function loadCytoscape() {
+  if (window.cytoscape) {
+    return Promise.resolve();
+  }
+
+  if (state.cytoscapePromise) {
+    return state.cytoscapePromise;
+  }
+
+  state.cytoscapePromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "/vendor/cytoscape/cytoscape.min.js";
+    script.async = true;
+    script.addEventListener("load", resolve, { once: true });
+    script.addEventListener("error", () => reject(new Error("Graph cizim kutuphanesi yuklenemedi.")), { once: true });
+    document.head.append(script);
+  });
+
+  return state.cytoscapePromise;
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i.test(String(value ?? "").trim());
+}
+
+function setFieldError(form, fieldName, message) {
+  const field = form.elements[fieldName];
+
+  if (!field) {
+    return;
+  }
+
+  field.setAttribute("aria-invalid", "true");
+  const label = field.closest("label");
+
+  if (!label) {
+    return;
+  }
+
+  let error = label.querySelector(".field-error");
+
+  if (!error) {
+    error = document.createElement("span");
+    error.className = "field-error";
+    label.append(error);
+  }
+
+  error.textContent = message;
+}
+
+function clearFormErrors(form) {
+  form.querySelectorAll("[aria-invalid='true']").forEach((field) => field.removeAttribute("aria-invalid"));
+  form.querySelectorAll(".field-error").forEach((error) => error.remove());
+  const summary = form.querySelector("[data-form-errors]");
+
+  if (summary) {
+    summary.textContent = "";
+    summary.classList.remove("is-visible");
+  }
+}
+
+function showFormErrors(form, errors) {
+  clearFormErrors(form);
+
+  Object.entries(errors).forEach(([fieldName, message]) => {
+    setFieldError(form, fieldName, message);
+  });
+
+  const messages = Object.values(errors);
+  const summary = form.querySelector("[data-form-errors]");
+
+  if (summary && messages.length) {
+    summary.textContent = messages.join(" ");
+    summary.classList.add("is-visible");
+  }
+
+  const firstInvalid = form.querySelector("[aria-invalid='true']");
+  firstInvalid?.focus();
 }
 
 function validateLoginPayload(payload) {
+  const errors = {};
+
   if (!String(payload.email ?? "").trim()) {
-    return "E-posta zorunludur.";
-  }
-
-  if (!String(payload.password ?? "").trim()) {
-    return "Sifre zorunludur.";
-  }
-
-  return "";
-}
-
-function validateRegisterPayload(payload) {
-  if (String(payload.name ?? "").trim().length < 2) {
-    return "Ad soyad en az 2 karakter olmalidir.";
-  }
-
-  if (!String(payload.email ?? "").includes("@")) {
-    return "Gecerli bir e-posta giriniz.";
+    errors.email = "E-posta zorunludur.";
+  } else if (!isValidEmail(payload.email)) {
+    errors.email = "Geçerli bir e-posta giriniz.";
   }
 
   if (String(payload.password ?? "").length < 8) {
-    return "Sifre en az 8 karakter olmalidir.";
+    errors.password = "Şifre en az 8 karakter olmalıdır.";
+  }
+
+  return errors;
+}
+
+function validateRegisterPayload(payload) {
+  const errors = {};
+
+  if (String(payload.name ?? "").trim().length < 2) {
+    errors.name = "Ad Soyad en az 2 karakter olmalıdır.";
   }
 
   if (String(payload.headline ?? "").trim().length < 2) {
-    return "Baslik en az 2 karakter olmalidir.";
+    errors.headline = "Başlık en az 2 karakter olmalıdır.";
   }
 
-  return "";
+  if (!String(payload.email ?? "").trim()) {
+    errors.email = "E-posta zorunludur.";
+  } else if (!isValidEmail(payload.email)) {
+    errors.email = "Geçerli bir e-posta giriniz.";
+  }
+
+  if (String(payload.password ?? "").length < 8) {
+    errors.password = "Şifre en az 8 karakter olmalıdır.";
+  }
+
+  if (String(payload.city ?? "").trim().length > 80) {
+    errors.city = "Şehir en fazla 80 karakter olabilir.";
+  }
+
+  if (String(payload.bio ?? "").trim().length > 240) {
+    errors.bio = "Bio en fazla 240 karakter olabilir.";
+  }
+
+  return errors;
 }
 
 function initOpeningSlideshow() {
@@ -598,15 +797,37 @@ async function request(url, options = {}, retryOn401 = true) {
 function toggleApp(isAuthenticated) {
   elements.authGate.classList.toggle("hidden", isAuthenticated);
   elements.appContent.classList.toggle("hidden", !isAuthenticated);
+  elements.appShell?.classList.toggle("is-authenticated", isAuthenticated);
+  document.body.classList.toggle("is-authenticated", isAuthenticated);
 
   if (isAuthenticated) {
-    setActiveCategory("home");
+    state.categoryHistory = [];
+    setActiveCategory("home", { pushHistory: false });
   } else {
     setAuthMode(null);
   }
 }
 
-function setActiveCategory(category) {
+function updateBackButton() {
+  const canGoBack =
+    state.categoryHistory.length > 0 ||
+    (state.activeCategory === "people" && Boolean(state.selectedProfile || state.profileHistory.length));
+
+  elements.navBackButton.disabled = !canGoBack;
+  elements.navBackButton.classList.toggle("is-disabled", !canGoBack);
+}
+
+function setActiveCategory(category, options = {}) {
+  const pushHistory = options.pushHistory !== false;
+
+  if (pushHistory && state.activeCategory && state.activeCategory !== category) {
+    const previous = state.categoryHistory[state.categoryHistory.length - 1];
+
+    if (previous !== state.activeCategory) {
+      state.categoryHistory.push(state.activeCategory);
+    }
+  }
+
   state.activeCategory = category;
   elements.dashboard.dataset.activeCategory = category;
 
@@ -623,12 +844,38 @@ function setActiveCategory(category) {
   });
 
   if (category === "graph" || category === "overview") {
-    requestAnimationFrame(() => {
-      if (state.network?.nodes?.length) {
-        renderGraph();
-      }
-    });
+    loadGraphData().catch((error) => setStatus(error.message, true));
   }
+
+  if (category === "messages" && state.session && options.resetMessages !== false) {
+    state.activeConversation = null;
+    state.messageView = "persons";
+    renderMessaging();
+    loadConversations({ openFirst: false }).catch((error) => setStatus(error.message, true));
+  }
+
+  updateBackButton();
+}
+
+async function goBackInApp() {
+  if (state.activeCategory === "people" && state.profileHistory.length) {
+    const previousProfileId = state.profileHistory.pop();
+    await loadProfile(previousProfileId, { pushCategoryHistory: false });
+    updateBackButton();
+    return;
+  }
+
+  if (state.activeCategory === "people" && state.selectedProfile) {
+    state.selectedProfile = null;
+    state.profileTab = "about";
+    state.profileEditImage = null;
+    state.profileEditRemoveImage = false;
+    renderProfileDetail();
+    renderUsers();
+  }
+
+  const previousCategory = state.categoryHistory.pop();
+  setActiveCategory(previousCategory || "home", { pushHistory: false });
 }
 
 function renderDemoAccounts() {
@@ -678,23 +925,17 @@ function renderSessionCard() {
   }
 
   elements.currentUserCard.innerHTML = `
-    <div class="session-head">
-      <div class="session-profile">
-        ${avatarHtml(state.session)}
-        <div>
-          <p class="person-title">${escapeHtml(state.session.name)}</p>
-          <p class="person-subtitle">${escapeHtml(state.session.headline)}</p>
-        </div>
-      </div>
-      <span class="meta-chip">${escapeHtml(state.session.role)}</span>
-    </div>
-    <p class="mini-copy">${escapeHtml(state.session.email)}${state.session.city ? ` | ${escapeHtml(state.session.city)}` : ""}</p>
-    <div class="person-actions">
-      <button class="button button-secondary" data-action="open-my-profile" type="button">Profilimi ac</button>
-    </div>
+    <button class="profile-avatar-button hero-profile-button" data-action="open-my-profile" type="button" aria-label="Profilimi ac" title="Profilimi ac">
+      ${profilePictureHtml(state.session, "avatar-large")}
+    </button>
   `;
 
   elements.resetDemoButton.classList.toggle("hidden", state.session.role !== "admin");
+}
+
+function toggleAppDetails() {
+  const isOpen = elements.appDetailsPanel.classList.toggle("hidden") === false;
+  elements.appLogoButton.setAttribute("aria-expanded", String(isOpen));
 }
 
 function renderStats() {
@@ -809,6 +1050,7 @@ function renderProfileDetail() {
 
   const user = profile.user;
   const isOwnProfile = user.id === state.session?.id;
+  const activeProfileTab = isOwnProfile ? state.profileTab : state.profileTab === "edit" ? "about" : state.profileTab;
   const followButton = isOwnProfile
     ? `<button class="button button-secondary" type="button" disabled>Aktif profil</button>`
     : user.followedByViewer
@@ -923,6 +1165,27 @@ function renderProfileDetail() {
       </form>
     `
     : "";
+  const profileTabs = `
+    <div class="profile-tabs" role="tablist" aria-label="Profil kategorileri">
+      <button class="profile-tab ${activeProfileTab === "about" ? "active" : ""}" data-action="profile-tab" data-profile-tab="about" type="button" role="tab" aria-selected="${activeProfileTab === "about"}">About</button>
+      <button class="profile-tab ${activeProfileTab === "credentials" ? "active" : ""}" data-action="profile-tab" data-profile-tab="credentials" type="button" role="tab" aria-selected="${activeProfileTab === "credentials"}">Credentials</button>
+      ${
+        isOwnProfile
+          ? `<button class="profile-tab ${activeProfileTab === "edit" ? "active" : ""}" data-action="profile-tab" data-profile-tab="edit" type="button" role="tab" aria-selected="${activeProfileTab === "edit"}">Edit profile</button>`
+          : ""
+      }
+    </div>
+  `;
+  const credentialsPanel = `
+    <section class="profile-credentials">
+      <article><span>Ad soyad</span><strong>${escapeHtml(user.name)}</strong></article>
+      <article><span>E-posta</span><strong>${escapeHtml(user.email ?? "Gizli")}</strong></article>
+      <article><span>Rol</span><strong>${escapeHtml(user.role ?? "member")}</strong></article>
+      <article><span>Baslik</span><strong>${escapeHtml(user.headline ?? "-")}</strong></article>
+      <article><span>Sehir</span><strong>${escapeHtml(user.city ?? "-")}</strong></article>
+      <article><span>Hesap tarihi</span><strong>${user.createdAt ? formatDate(user.createdAt) : "-"}</strong></article>
+    </section>
+  `;
 
   elements.profileDetail.classList.remove("hidden");
   elements.profileDetail.innerHTML = `
@@ -950,8 +1213,10 @@ function renderProfileDetail() {
           </div>
         </div>
       </div>
-      ${editForm}
-      <div class="profile-grid">
+      ${profileTabs}
+      ${activeProfileTab === "credentials" ? credentialsPanel : ""}
+      ${activeProfileTab === "edit" ? editForm : ""}
+      <div class="profile-grid ${activeProfileTab === "about" ? "" : "hidden"}">
         <section>
           <h4>Takip ettikleri</h4>
           <div class="profile-chip-list">${connectionList(profile.following, "Bu kullanici henuz kimseyi takip etmiyor.")}</div>
@@ -990,13 +1255,13 @@ function renderPosts() {
 
   elements.postsList.innerHTML = posts
     .map((post) => {
-      const likeLabel = post.likedByViewer ? "Begeniyi kaldir" : "Begeni";
       const likeAction = post.likedByViewer ? "unlike" : "like";
       const comments = post.comments ?? [];
       const deleteAllowed = (comment) => comment.authoredByViewer || state.session?.role === "admin";
       const postMedia = renderPostMediaElement(post);
       const canManagePost = post.authoredByViewer || state.session?.role === "admin";
       const isEditing = state.editingPostId === post.id;
+      const likeText = post.likedByViewer ? "Begeniyi kaldir" : "Begeni";
       const editMediaPreview = state.editMedia
         ? state.editMedia.type.startsWith("image/")
           ? `<img src="${escapeHtml(state.editMedia.dataUrl)}" alt="${escapeHtml(state.editMedia.name)}" />`
@@ -1054,6 +1319,8 @@ function renderPosts() {
           <button class="button button-ghost" data-action="delete-post" data-post-id="${escapeHtml(post.id)}" type="button">Sil</button>
         `
         : "";
+      const engagementScore = Number(post.likeCount ?? 0) + Number(post.commentCount ?? 0);
+      const postTone = engagementScore >= 3 ? "Trending" : post.mediaUrl ? "Media" : "Update";
       const commentsMarkup = comments.length
         ? comments
             .map(
@@ -1083,7 +1350,11 @@ function renderPosts() {
         : `<div class="empty-state compact-empty">Ilk yorumu siz yazin.</div>`;
 
       return `
-        <article class="post-card">
+        <article class="post-card" style="--author-color:${escapeHtml(post.author.color || "#0f766e")}">
+          <div class="post-ribbon">
+            <span>${escapeHtml(postTone)}</span>
+            <span>${engagementScore} etkilesim</span>
+          </div>
           <div class="post-head">
             <button class="post-author person-profile-link" data-action="open-profile" data-target-id="${escapeHtml(post.author.id)}" type="button">
               ${avatarHtml(post.author)}
@@ -1097,9 +1368,18 @@ function renderPosts() {
           ${post.content ? `<p class="post-content">${escapeHtml(post.content)}</p>` : ""}
           ${postMedia}
           <div class="post-actions">
-            <button class="button ${post.likedByViewer ? "button-secondary" : "button-primary"}" data-action="${likeAction}" data-post-id="${escapeHtml(post.id)}" type="button">${likeLabel}</button>
-            <button class="button button-ghost" type="button" disabled>${post.likeCount} begeni</button>
-            <button class="button button-ghost" type="button" disabled>${post.commentCount ?? 0} yorum</button>
+            <button class="button icon-action ${post.likedByViewer ? "button-secondary" : "button-primary"}" data-action="${likeAction}" data-post-id="${escapeHtml(post.id)}" type="button" aria-label="${escapeHtml(likeText)}" title="${escapeHtml(likeText)}">
+              ${iconSvg("like")}
+              ${srOnly(likeText)}
+            </button>
+            <button class="button button-ghost metric-button" type="button" disabled aria-label="${escapeHtml(`${post.likeCount} begeni`)}" title="${escapeHtml(`${post.likeCount} begeni`)}">
+              ${iconSvg("like")}
+              <span>${post.likeCount}</span>
+            </button>
+            <button class="button button-ghost metric-button" type="button" disabled aria-label="${escapeHtml(`${post.commentCount ?? 0} yorum`)}" title="${escapeHtml(`${post.commentCount ?? 0} yorum`)}">
+              ${iconSvg("comment")}
+              <span>${post.commentCount ?? 0}</span>
+            </button>
             ${managementActions}
           </div>
           ${editForm}
@@ -1120,6 +1400,16 @@ function renderNotifications() {
   const notifications = state.notifications ?? [];
   const unreadCount = notifications.filter((notification) => notification.unread).length;
   const markAllDisabled = unreadCount === 0 ? "disabled" : "";
+
+  if (elements.notificationNavCount) {
+    elements.notificationNavCount.textContent = String(unreadCount);
+    elements.notificationNavCount.classList.toggle("hidden", unreadCount === 0);
+    elements.notificationNavCount.classList.remove("nav-count-muted");
+    elements.notificationNavCount.setAttribute(
+      "aria-label",
+      `${unreadCount} yeni bildirim, ${notifications.length} toplam bildirim`
+    );
+  }
 
   elements.notificationsSummary.innerHTML = `
     <article class="notification-summary-card">
@@ -1234,6 +1524,349 @@ async function markAllNotificationsRead() {
   }
 }
 
+function setOnlineUsers(userIds = []) {
+  state.onlineUserIds = new Set(userIds);
+  state.conversations = state.conversations.map((conversation) => ({
+    ...conversation,
+    participant: {
+      ...conversation.participant,
+      online: state.onlineUserIds.has(conversation.participant.id)
+    }
+  }));
+
+  if (state.activeConversation?.participant) {
+    state.activeConversation.participant.online = state.onlineUserIds.has(state.activeConversation.participant.id);
+  }
+
+  renderMessaging();
+}
+
+function getUnreadMessageCount() {
+  return (state.conversations ?? []).reduce((total, conversation) => total + Number(conversation.unreadCount || 0), 0);
+}
+
+function renderMessageNavCount() {
+  const unreadCount = getUnreadMessageCount();
+
+  if (!elements.messageNavCount) {
+    return;
+  }
+
+  elements.messageNavCount.textContent = String(unreadCount);
+  elements.messageNavCount.classList.toggle("hidden", unreadCount === 0);
+  elements.messageNavCount.setAttribute("aria-label", `${unreadCount} okunmamis mesaj`);
+}
+
+function renderMessageSidebarProfile() {
+  if (!elements.messageSidebarProfile) {
+    return;
+  }
+
+  if (!state.session) {
+    elements.messageSidebarProfile.innerHTML = "";
+    return;
+  }
+
+  const unreadCount = getUnreadMessageCount();
+  elements.messageSidebarProfile.innerHTML = `
+    <div class="sidebar-profile-main">
+      ${avatarHtml(state.session, "avatar-small")}
+      <div>
+        <strong>${escapeHtml(state.session.name)}</strong>
+        <span>${escapeHtml(state.session.headline || "Elite Circle")}</span>
+      </div>
+    </div>
+    <button class="sidebar-notification" type="button" aria-label="${unreadCount} okunmamis mesaj" title="Mesaj bildirimleri">
+      ${iconSvg("bell")}
+      ${unreadCount ? `<span>${unreadCount}</span>` : ""}
+    </button>
+  `;
+}
+
+function setMessageView(view) {
+  state.messageView = view === "chat" ? "chat" : "persons";
+  elements.messagingLayout?.classList.toggle("is-persons-view", state.messageView === "persons");
+  elements.messagingLayout?.classList.toggle("is-chat-view", state.messageView === "chat");
+
+  elements.messageCategoryTabs.forEach((tab) => {
+    const isActive = tab.dataset.messageView === state.messageView || (state.messageView === "chat" && tab.dataset.messageView === "persons");
+    tab.classList.toggle("active", isActive);
+    tab.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
+function renderMessageView() {
+  setMessageView(state.messageView);
+}
+
+function renderConversationList() {
+  const conversations = state.conversations ?? [];
+  renderMessageNavCount();
+  renderMessageSidebarProfile();
+
+  if (!conversations.length) {
+    elements.conversationList.innerHTML = `<div class="empty-state">Konusma veya kullanici bulunamadi.</div>`;
+    return;
+  }
+
+  elements.conversationList.innerHTML = conversations
+    .map((conversation) => {
+      const participant = conversation.participant;
+      const latest = conversation.latestMessage;
+      const isActive = state.activeConversation?.participant?.id === participant.id;
+      const online = participant.online || state.onlineUserIds.has(participant.id);
+
+      return `
+        <button class="conversation-card${isActive ? " active" : ""}" type="button" data-action="open-conversation" data-user-id="${escapeHtml(participant.id)}">
+          ${avatarHtml(participant)}
+          <span class="presence-dot ${online ? "online" : "offline"}" title="${online ? "Online" : "Offline"}"></span>
+          <span class="conversation-copy">
+            <strong>${escapeHtml(participant.name)}</strong>
+            <small>${escapeHtml(participant.headline || participant.city || "Elite Circle")}</small>
+            <span>${latest ? escapeHtml(latest.content) : "Henuz mesaj yok."}</span>
+          </span>
+          <span class="conversation-meta">
+            ${latest ? `<time>${formatDate(latest.createdAt)}</time>` : ""}
+            ${conversation.unreadCount ? `<strong>${conversation.unreadCount}</strong>` : ""}
+          </span>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+function renderChat() {
+  const conversation = state.activeConversation;
+  elements.chatMessages.classList.remove("is-empty");
+  elements.pinnedMessages?.classList.add("hidden");
+  elements.typingIndicator?.classList.add("hidden");
+
+  if (!conversation) {
+    elements.chatHeader.innerHTML = `
+      <div>
+        <strong>Bir konusma secin</strong>
+        <span>Mesajlasmak icin soldan kullanici secin.</span>
+      </div>
+    `;
+    elements.pinnedMessages.innerHTML = "";
+    elements.typingIndicator.innerHTML = "";
+    elements.chatMessages.classList.add("is-empty");
+    elements.chatMessages.innerHTML = `<div class="empty-state">Aktif konusma yok.</div>`;
+    elements.messageForm.classList.add("hidden");
+    return;
+  }
+
+  const participant = conversation.participant;
+  const online = participant.online || state.onlineUserIds.has(participant.id);
+  elements.chatHeader.innerHTML = `
+    <div class="chat-profile">
+      ${avatarHtml(participant)}
+      <div>
+        <strong>${escapeHtml(participant.name)}</strong>
+        <span><i class="presence-dot ${online ? "online" : "offline"}"></i>${online ? "Online" : "Offline"} | ${escapeHtml(participant.headline || "")}</span>
+      </div>
+    </div>
+    <div class="chat-actions" aria-label="Konusma araclari">
+      <button class="chat-icon-button" type="button" aria-label="Sesli arama" title="Sesli arama">${iconSvg("call")}</button>
+      <button class="chat-icon-button" type="button" aria-label="Goruntulu arama" title="Goruntulu arama">${iconSvg("video")}</button>
+      <button class="chat-icon-button" type="button" aria-label="Ayarlar" title="Ayarlar">${iconSvg("settings")}</button>
+      <button class="button button-secondary button-small" type="button" data-action="open-profile" data-target-id="${escapeHtml(participant.id)}">Profil</button>
+    </div>
+  `;
+
+  const messages = conversation.messages ?? [];
+  elements.messageForm.classList.remove("hidden");
+  const pinnedMessage = messages.find((message) => !message.sentByViewer) || messages[0];
+
+  if (pinnedMessage) {
+    elements.pinnedMessages.classList.remove("hidden");
+    elements.pinnedMessages.innerHTML = `
+      <div class="pinned-message">
+        ${iconSvg("pin")}
+        <div>
+          <strong>Sabit mesaj</strong>
+          <span>${escapeHtml(pinnedMessage.content)}</span>
+        </div>
+      </div>
+    `;
+  } else {
+    elements.pinnedMessages.innerHTML = "";
+  }
+
+  elements.typingIndicator.classList.remove("hidden");
+  elements.typingIndicator.innerHTML = `
+    <span>${escapeHtml(participant.name)} typing...</span>
+    <i></i><i></i><i></i>
+  `;
+
+  if (!messages.length) {
+    elements.chatMessages.classList.add("is-empty");
+    elements.chatMessages.innerHTML = `<div class="empty-state">Ilk mesaji gonderin.</div>`;
+    return;
+  }
+
+  elements.chatMessages.classList.remove("is-empty");
+  elements.chatMessages.innerHTML = messages
+    .map(
+      (message) => `
+        <article class="message-bubble ${message.sentByViewer ? "sent" : "received"}">
+          <p>${escapeHtml(message.content)}</p>
+          <span>${formatDate(message.createdAt)}${message.sentByViewer ? ` | ${message.seenAt ? "Goruldu" : "Teslim edildi"}` : ""}</span>
+        </article>
+      `
+    )
+    .join("");
+  elements.chatMessages.scrollTop = elements.chatMessages.scrollHeight;
+}
+
+function renderMessaging() {
+  renderMessageView();
+  renderConversationList();
+  renderChat();
+}
+
+async function loadConversations(options = {}) {
+  if (!state.session) {
+    return;
+  }
+
+  const params = new URLSearchParams();
+
+  if (state.messageSearch) {
+    params.set("search", state.messageSearch);
+  }
+
+  const payload = await request(`/api/messages/conversations${params.toString() ? `?${params.toString()}` : ""}`);
+  state.conversations = payload.conversations ?? [];
+
+  if (options.openFirst !== false && !state.activeConversation && state.conversations.length) {
+    await openConversation(state.conversations[0].participant.id, { silent: true });
+    return;
+  }
+
+  renderMessaging();
+}
+
+async function openConversation(userId, options = {}) {
+  const payload = await request(`/api/messages/conversations/${encodeURIComponent(userId)}`);
+  state.activeConversation = payload.conversation;
+  state.messageView = "chat";
+  renderMessaging();
+  await markActiveConversationRead();
+
+  if (!options.silent) {
+    setActiveCategory("messages", { resetMessages: false });
+  }
+}
+
+async function markActiveConversationRead() {
+  const participantId = state.activeConversation?.participant?.id;
+
+  if (!participantId) {
+    return;
+  }
+
+  const hasUnreadMessages = state.activeConversation.messages?.some(
+    (message) => !message.sentByViewer && !message.seenAt
+  );
+
+  if (!hasUnreadMessages) {
+    return;
+  }
+
+  const payload = await request(`/api/messages/conversations/${encodeURIComponent(participantId)}/read`, {
+    method: "PATCH"
+  });
+  const seenAt = payload.receipt?.seenAt;
+
+  state.activeConversation.messages = state.activeConversation.messages.map((message) =>
+    message.sentByViewer ? message : { ...message, seenAt: message.seenAt || seenAt }
+  );
+  state.conversations = state.conversations.map((conversation) =>
+    conversation.participant.id === participantId ? { ...conversation, unreadCount: 0 } : conversation
+  );
+  renderMessaging();
+  await refreshNotifications();
+}
+
+async function refreshNotifications() {
+  const payload = await request("/api/notifications");
+  state.notifications = payload.notifications ?? [];
+  renderNotifications();
+}
+
+async function handleRealtimeMessage(message) {
+  const otherUserId = message.fromUserId === state.session?.id ? message.toUserId : message.fromUserId;
+  const activeId = state.activeConversation?.participant?.id;
+
+  if (activeId === otherUserId) {
+    const incoming = {
+      ...message,
+      sentByViewer: message.fromUserId === state.session?.id
+    };
+    const exists = state.activeConversation.messages.some((item) => item.id === incoming.id);
+
+    if (!exists) {
+      state.activeConversation.messages.push(incoming);
+    }
+
+    renderMessaging();
+    await markActiveConversationRead();
+  }
+
+  await loadConversations();
+  await refreshNotifications();
+}
+
+function connectRealtime() {
+  if (state.eventSource || !state.session || !window.EventSource) {
+    return;
+  }
+
+  state.eventSource = new EventSource("/api/events");
+
+  state.eventSource.addEventListener("ready", (event) => {
+    const payload = JSON.parse(event.data || "{}");
+    setOnlineUsers(payload.onlineUserIds || []);
+  });
+
+  state.eventSource.addEventListener("presence:update", (event) => {
+    const payload = JSON.parse(event.data || "{}");
+    setOnlineUsers(payload.onlineUserIds || []);
+  });
+
+  state.eventSource.addEventListener("message:new", (event) => {
+    const payload = JSON.parse(event.data || "{}");
+    handleRealtimeMessage(payload.message).catch((error) => setStatus(error.message, true));
+  });
+
+  state.eventSource.addEventListener("message:seen", (event) => {
+    const payload = JSON.parse(event.data || "{}");
+    const activeId = state.activeConversation?.participant?.id;
+
+    if (activeId && [payload.viewerId, payload.participantId].includes(activeId)) {
+      state.activeConversation.messages = state.activeConversation.messages.map((message) =>
+        payload.messageIds?.includes(message.id) ? { ...message, seenAt: payload.seenAt } : message
+      );
+      renderMessaging();
+    }
+  });
+
+  state.eventSource.addEventListener("notification:new", () => {
+    refreshNotifications().catch((error) => setStatus(error.message, true));
+  });
+
+  state.eventSource.addEventListener("error", () => {
+    setStatus("Canli baglanti yeniden deneniyor...");
+  });
+}
+
+function disconnectRealtime() {
+  state.eventSource?.close();
+  state.eventSource = null;
+  state.onlineUserIds = new Set();
+}
+
 function renderMiniList(container, items, renderer, emptyText = "Sonuc bulunamadi.") {
   if (!items.length) {
     container.innerHTML = `<div class="empty-state">${emptyText}</div>`;
@@ -1247,6 +1880,12 @@ function renderPath() {
   const path = state.dashboard?.insights?.shortestPath ?? { nodes: [], hops: null };
   elements.pathMeta.textContent =
     path.hops === null ? "Baglanti yok" : path.hops === 0 ? "Ayni kullanici" : `${path.hops} adim`;
+  elements.pathExplanation.textContent =
+    path.hops === null
+      ? "Secilen iki kullanici arasinda takip veya etkilesim zinciri bulunamadi."
+      : path.hops === 0
+        ? "Baslangic ve hedef ayni kullanici oldugu icin yol sifir adimdir."
+        : "Bu satir, baslangic kullanicisindan hedef kullaniciya ulasmak icin izlenen en kisa sosyal baglanti zinciridir.";
 
   if (!path.nodes.length) {
     elements.pathView.innerHTML = `<div class="empty-state">Secilen kisiler arasinda baglanti bulunamadi.</div>`;
@@ -1291,12 +1930,19 @@ function renderInsights() {
   const insights = state.dashboard?.insights;
   const graph = state.dashboard?.graph;
 
-  if (!insights || !graph) {
+  if (!insights) {
     return;
   }
 
   renderPath();
-  renderRuntime();
+  if (!graph) {
+    elements.pluginStatus.innerHTML = `<div class="mini-list-item">Graph analizleri Graph sekmesi acildiginda yuklenecek.</div>`;
+    elements.communityList.innerHTML = `<div class="empty-state compact-empty">Graph sekmesini acarak Louvain sonuclarini yukleyin.</div>`;
+    elements.pagerankList.innerHTML = `<div class="empty-state compact-empty">Graph sekmesini acarak PageRank sonuclarini yukleyin.</div>`;
+    elements.embeddingList.innerHTML = `<div class="empty-state compact-empty">Graph sekmesini acarak embedding verisini yukleyin.</div>`;
+  } else {
+    renderRuntime();
+  }
 
   renderMiniList(
     elements.secondDegreeList,
@@ -1335,7 +1981,7 @@ function renderInsights() {
 
   renderMiniList(
     elements.communityList,
-    graph.communities ?? [],
+    graph?.communities ?? [],
     (community) => `
       <div class="mini-list-item">
         <strong>Community ${community.communityId}</strong>
@@ -1348,7 +1994,7 @@ function renderInsights() {
 
   renderMiniList(
     elements.pagerankList,
-    graph.pageRank ?? [],
+    graph?.pageRank ?? [],
     (item) => `
       <div class="mini-list-item">
         <strong>${item.user.name}</strong>
@@ -1361,7 +2007,7 @@ function renderInsights() {
 
   renderMiniList(
     elements.embeddingList,
-    graph.embeddings ?? [],
+    graph?.embeddings ?? [],
     (item) => `
       <div class="mini-list-item">
         <strong>${item.user.name}</strong>
@@ -1388,6 +2034,11 @@ function renderGraph() {
   if (state.cy) {
     state.cy.destroy();
     state.cy = null;
+  }
+
+  if (!state.graphLoaded) {
+    elements.graphCanvas.innerHTML = `<div class="empty-state">Graph sekmesi acildiginda network yuklenecek.</div>`;
+    return;
   }
 
   if (!state.network?.nodes?.length || !window.cytoscape) {
@@ -1498,6 +2149,7 @@ function renderAll() {
   renderProfileDetail();
   renderPosts();
   renderNotifications();
+  renderMessaging();
   renderInsights();
   renderGraph();
 }
@@ -1519,21 +2171,62 @@ async function loadAppData() {
     }
 
     const suffix = params.toString() ? `?${params.toString()}` : "";
-    const [dashboard, network, notificationPayload] = await Promise.all([
+    const [dashboard, notificationPayload] = await Promise.all([
       request(`/api/dashboard${suffix}`),
-      request("/api/graph/network"),
       request("/api/notifications")
     ]);
     state.dashboard = dashboard;
-    state.network = network;
     state.notifications = notificationPayload.notifications ?? [];
     renderAll();
-    setStatus("Arayuz, auth ve graph verisi senkron.");
+    connectRealtime();
+    loadConversations({ openFirst: false }).catch((error) => setStatus(error.message, true));
+    setStatus("Arayuz ve auth verisi senkron. Graph sekmesi acildiginda analizler yuklenecek.");
   } catch (error) {
     setStatus(error.message, true);
   } finally {
     state.loading = false;
     elements.refreshButton.disabled = false;
+  }
+}
+
+async function loadGraphData() {
+  if (!state.session || state.graphLoading || state.graphLoaded) {
+    return;
+  }
+
+  state.graphLoading = true;
+  elements.graphCanvas.innerHTML = `<div class="empty-state">Graph verisi yukleniyor...</div>`;
+  setStatus("Graph analizleri yukleniyor...");
+
+  try {
+    await loadCytoscape();
+    const [network, runtime, communitiesPayload, pageRankPayload, embeddingsPayload] = await Promise.all([
+      request("/api/graph/network"),
+      request("/api/graph/status"),
+      request("/api/graph/communities"),
+      request("/api/graph/pagerank"),
+      request("/api/graph/embeddings")
+    ]);
+
+    state.network = network;
+    state.dashboard = {
+      ...state.dashboard,
+      graph: {
+        runtime,
+        communities: communitiesPayload.communities ?? [],
+        pageRank: pageRankPayload.leaders ?? [],
+        embeddings: embeddingsPayload.embeddings ?? []
+      }
+    };
+    state.graphLoaded = true;
+    renderInsights();
+    renderGraph();
+    setStatus("Graph analizleri hazir.");
+  } catch (error) {
+    elements.graphCanvas.innerHTML = `<div class="empty-state">${escapeHtml(error.message)}</div>`;
+    setStatus(error.message, true);
+  } finally {
+    state.graphLoading = false;
   }
 }
 
@@ -1560,11 +2253,12 @@ async function loadProfile(userId, options = {}) {
 
     const payload = await request(`/api/users/${encodeURIComponent(userId)}`);
     state.selectedProfile = payload.profile;
+    state.profileTab = "about";
     state.profileEditImage = null;
     state.profileEditRemoveImage = false;
     state.openingProfileId = null;
     renderProfileDetail();
-    setActiveCategory("people");
+    setActiveCategory("people", { pushHistory: options.pushCategoryHistory !== false });
     renderUsers();
     elements.profileDetail.scrollIntoView({ behavior: "smooth", block: "start" });
     setStatus(`${payload.profile.user.name} profili acildi.`);
@@ -1612,14 +2306,7 @@ async function loadDemoData() {
   } catch (_error) {
     // Demo accounts failed to load
   }
-  
-  try {
-    const groupsPayload = await request("/api/groups", {}, false);
-    state.demoGroups = groupsPayload.groups || [];
-  } catch (_error) {
-    // Groups failed to load
-  }
-  
+
   renderDemoAccounts();
 }
 
@@ -1665,10 +2352,54 @@ elements.navTabs.forEach((button) => {
   });
 });
 
+elements.messageCategoryTabs.forEach((button) => {
+  button.addEventListener("click", () => {
+    state.activeConversation = null;
+    setMessageView(button.dataset.messageView);
+    renderMessaging();
+  });
+});
+
+elements.navBackButton.addEventListener("click", async () => {
+  if (elements.navBackButton.disabled) {
+    return;
+  }
+
+  await goBackInApp();
+});
+
+elements.appLogoButton.addEventListener("click", () => {
+  toggleAppDetails();
+});
+
 elements.authModeButtons.forEach((button) => {
   button.addEventListener("click", () => {
     setAuthMode(button.dataset.authMode);
     setAuthMessage("");
+  });
+});
+
+document.querySelectorAll("[data-auth-close]").forEach((button) => {
+  button.addEventListener("click", () => {
+    setAuthMode(null);
+    setAuthMessage("");
+  });
+});
+
+document.querySelectorAll("#loginForm input, #registerForm input, #registerForm textarea").forEach((field) => {
+  field.addEventListener("input", () => {
+    const form = field.closest("form");
+    const label = field.closest("label");
+    field.removeAttribute("aria-invalid");
+    label?.querySelector(".field-error")?.remove();
+
+    if (form && !form.querySelector("[aria-invalid='true']")) {
+      const summary = form.querySelector("[data-form-errors]");
+      summary?.classList.remove("is-visible");
+      if (summary) {
+        summary.textContent = "";
+      }
+    }
   });
 });
 
@@ -1687,6 +2418,31 @@ elements.peopleSearchInput.addEventListener("input", (event) => {
   renderUsers();
 });
 
+elements.messageSearchInput.addEventListener("input", (event) => {
+  state.messageSearch = event.currentTarget.value;
+  loadConversations().catch((error) => setStatus(error.message, true));
+});
+
+elements.conversationList.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action='open-conversation']");
+
+  if (!button) {
+    return;
+  }
+
+  await openConversation(button.dataset.userId);
+});
+
+elements.chatHeader.addEventListener("click", async (event) => {
+  const button = event.target.closest("button[data-action='open-profile']");
+
+  if (!button) {
+    return;
+  }
+
+  await loadProfile(button.dataset.targetId, { pushHistory: true });
+});
+
 elements.currentUserCard.addEventListener("click", async (event) => {
   if (event.target.closest("[data-action='open-my-profile']")) {
     await loadProfile(state.session.id, { pushHistory: true });
@@ -1703,6 +2459,14 @@ elements.profileDetail.addEventListener("click", async (event) => {
   const action = button.dataset.action;
   const targetId = button.dataset.targetId;
 
+  if (action === "profile-tab") {
+    state.profileTab = button.dataset.profileTab || "about";
+    state.profileEditImage = null;
+    state.profileEditRemoveImage = false;
+    renderProfileDetail();
+    return;
+  }
+
   if (action === "back-profile") {
     const previousProfileId = state.profileHistory.pop();
 
@@ -1713,10 +2477,12 @@ elements.profileDetail.addEventListener("click", async (event) => {
 
     state.selectedProfile = null;
     state.profileHistory = [];
+    state.profileTab = "about";
     state.profileEditImage = null;
     state.profileEditRemoveImage = false;
     renderProfileDetail();
     renderUsers();
+    updateBackButton();
     return;
   }
 
@@ -1867,14 +2633,16 @@ elements.loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   const formData = new FormData(event.currentTarget);
   const payload = Object.fromEntries(formData.entries());
-  const validationMessage = validateLoginPayload(payload);
+  const validationErrors = validateLoginPayload(payload);
 
-  if (validationMessage) {
-    setAuthMessage(validationMessage, true);
+  if (Object.keys(validationErrors).length) {
+    showFormErrors(event.currentTarget, validationErrors);
+    setAuthMessage("Lütfen giriş alanlarını kontrol edin.", true);
     return;
   }
 
   try {
+    clearFormErrors(event.currentTarget);
     setAuthMessage("Giris kontrol ediliyor...");
     const responsePayload = await request(
       "/api/auth/login",
@@ -1901,14 +2669,16 @@ elements.registerForm.addEventListener("submit", async (event) => {
   const requestPayload = Object.fromEntries(formData.entries());
   delete requestPayload.profileImage;
   requestPayload.profileImage = state.registerProfileImage;
-  const validationMessage = validateRegisterPayload(requestPayload);
+  const validationErrors = validateRegisterPayload(requestPayload);
 
-  if (validationMessage) {
-    setAuthMessage(validationMessage, true);
+  if (Object.keys(validationErrors).length) {
+    showFormErrors(event.currentTarget, validationErrors);
+    setAuthMessage("Lütfen kayıt alanlarını kontrol edin.", true);
     return;
   }
 
   try {
+    clearFormErrors(event.currentTarget);
     setAuthMessage("Hesap olusturuluyor...");
     const responsePayload = await request(
       "/api/auth/register",
@@ -1932,7 +2702,7 @@ elements.registerForm.addEventListener("submit", async (event) => {
   }
 });
 
-elements.logoutButton.addEventListener("click", async () => {
+elements.logoutButton?.addEventListener("click", async () => {
   try {
     await request(
       "/api/auth/logout",
@@ -1947,10 +2717,17 @@ elements.logoutButton.addEventListener("click", async () => {
 
   state.session = null;
   state.dashboard = null;
-  state.network = null;
   state.notifications = [];
+  state.network = null;
+  state.graphLoaded = false;
+  state.graphLoading = false;
+  state.conversations = [];
+  state.activeConversation = null;
   state.selectedProfile = null;
   state.profileHistory = [];
+  state.profileTab = "about";
+  state.categoryHistory = [];
+  disconnectRealtime();
 
   if (state.cy) {
     state.cy.destroy();
@@ -1959,6 +2736,40 @@ elements.logoutButton.addEventListener("click", async () => {
 
   toggleApp(false);
   setAuthMessage("Oturum kapatildi.");
+});
+
+elements.messageForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  const participantId = state.activeConversation?.participant?.id;
+  const formData = new FormData(event.currentTarget);
+  const content = String(formData.get("content") ?? "").trim();
+
+  if (!participantId || !content) {
+    return;
+  }
+
+  try {
+    const payload = await request("/api/messages", {
+      method: "POST",
+      body: JSON.stringify({
+        recipientId: participantId,
+        content
+      })
+    });
+
+    const message = payload.message;
+    const exists = state.activeConversation.messages.some((item) => item.id === message.id);
+
+    if (!exists) {
+      state.activeConversation.messages.push(message);
+    }
+
+    event.currentTarget.reset();
+    renderMessaging();
+    await loadConversations();
+  } catch (error) {
+    setStatus(error.message, true);
+  }
 });
 
 elements.targetSelect.addEventListener("change", () => {

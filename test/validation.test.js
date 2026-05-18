@@ -3,6 +3,7 @@ import test from "node:test";
 import {
   commentSchema,
   loginSchema,
+  paginationSchema,
   postSchema,
   postUpdateSchema,
   profileUpdateSchema,
@@ -69,6 +70,45 @@ test("postSchema accepts media-only posts and rejects empty posts", () => {
   assert.equal(parsed.content, "");
   assert.equal(parsed.media.type, "image/png");
   assert.throws(() => postSchema.parse({ content: " " }), /metin, fotograf veya video/i);
+});
+
+test("postSchema rejects empty content with no media", () => {
+  const result = postSchema.safeParse({ content: "", media: null });
+
+  assert.equal(result.success, false);
+});
+
+test("registerSchema rejects invalid hex color", () => {
+  const result = registerSchema.safeParse({
+    name: "Test User",
+    email: "a@b.com",
+    password: "password123",
+    headline: "Dev",
+    color: "notacolor"
+  });
+
+  assert.equal(result.success, false);
+});
+
+test("registerSchema normalises email to lowercase", () => {
+  const result = registerSchema.safeParse({
+    name: "Test",
+    email: "USER@EXAMPLE.COM",
+    password: "password123",
+    headline: "Dev"
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(result.data.email, "user@example.com");
+});
+
+test("paginationSchema coerces defaults and rejects out-of-range limits", () => {
+  const defaults = paginationSchema.parse({});
+  const parsed = paginationSchema.parse({ limit: "10", offset: "5" });
+
+  assert.deepEqual(defaults, { limit: 20, offset: 0 });
+  assert.deepEqual(parsed, { limit: 10, offset: 5 });
+  assert.equal(paginationSchema.safeParse({ limit: "101", offset: "0" }).success, false);
 });
 
 test("postUpdateSchema accepts media removal and rejects one-character text", () => {

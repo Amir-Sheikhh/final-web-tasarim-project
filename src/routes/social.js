@@ -10,6 +10,7 @@ import {
   idParamSchema,
   notificationParamSchema,
   optionalTargetQuerySchema,
+  paginationSchema,
   postIdParamSchema,
   postUpdateSchema,
   postSchema,
@@ -36,7 +37,6 @@ import {
   updatePost
 } from "../services/socialService.js";
 import { seedDemoGraph } from "../db/init.js";
-import { getCommunities, getEmbeddingPreview, getGraphRuntimeStatus, getPageRankLeaders } from "../services/graphService.js";
 import { getCurrentUser } from "../services/authService.js";
 
 const router = express.Router();
@@ -57,26 +57,12 @@ router.get(
   readLimiter,
   validateQuery(optionalTargetQuerySchema),
   asyncHandler(async (req, res) => {
-    const [dashboard, runtime, communities, pageRank, embeddings] = await Promise.all([
-      getDashboard({
-        viewerId: req.user.id,
-        targetId: req.query.targetId
-      }),
-      getGraphRuntimeStatus(),
-      getCommunities(),
-      getPageRankLeaders(),
-      getEmbeddingPreview()
-    ]);
-
-    res.json({
-      ...dashboard,
-      graph: {
-        runtime,
-        communities,
-        pageRank,
-        embeddings
-      }
+    const dashboard = await getDashboard({
+      viewerId: req.user.id,
+      targetId: req.query.targetId
     });
+
+    res.json(dashboard);
   })
 );
 
@@ -111,8 +97,9 @@ router.patch(
 router.get(
   "/users",
   readLimiter,
+  validateQuery(paginationSchema),
   asyncHandler(async (req, res) => {
-    const users = await listUsers(req.user.id);
+    const users = await listUsers(req.user.id, req.query);
     res.json({ users });
   })
 );
@@ -159,8 +146,9 @@ router.delete(
 router.get(
   "/posts",
   readLimiter,
+  validateQuery(paginationSchema),
   asyncHandler(async (req, res) => {
-    const posts = await getPostList(req.user.id);
+    const posts = await getPostList(req.user.id, req.query);
     res.json({ posts });
   })
 );

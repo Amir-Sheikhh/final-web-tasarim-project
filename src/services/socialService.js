@@ -1,6 +1,7 @@
 import { createId } from "../db/init.js";
 import { runRead, runWrite } from "../db/query.js";
 import { AppError } from "../lib/http.js";
+import { escapeHtml } from "../lib/sanitize.js";
 import { removeSavedUpload, removeUploadByUrl, savePostMedia } from "../lib/uploads.js";
 
 function normalizeText(value) {
@@ -52,7 +53,64 @@ function pickFirstUser(users, fallbackId) {
   return users[0]?.id ?? null;
 }
 
-export async function listUsers(viewerId) {
+const fallbackPostMessages = [
+  "Bugun graph akisinda yeni baglantilar ve oneriler kontrol edildi. Feed tekrar canli.",
+  "Elite Circle test gonderisi: takip, begeni ve yorum akisi calisir durumda.",
+  "Sistem bos feed yakaladi ve yeni bir demo paylasim olusturdu.",
+  "GraphLink akis testi basarili. Kullanici paneli ve gonderi listesi aktif.",
+  "Yeni demo gonderisi eklendi; sosyal graph tekrar icerik gostermeye hazir."
+];
+
+async function createFallbackPostIfFeedEmpty(viewerId) {
+  const result = await runRead("MATCH (post:Post) RETURN count(post) AS count");
+  const postCount = Number(result.records[0]?.get("count") ?? 0);
+
+  if (postCount > 0) {
+    return false;
+  }
+
+  const authorResult = await runRead(
+    `
+      OPTIONAL MATCH (viewer:User {id: $viewerId})
+      WITH viewer
+      OPTIONAL MATCH (anyUser:User)
+      WITH coalesce(viewer, anyUser) AS author
+      WHERE author IS NOT NULL
+      RETURN author.id AS authorId
+      ORDER BY author.name
+      LIMIT 1
+    `,
+    { viewerId }
+  );
+  const authorId = authorResult.records[0]?.get("authorId");
+
+  if (!authorId) {
+    return false;
+  }
+
+  const content = fallbackPostMessages[Math.floor(Math.random() * fallbackPostMessages.length)];
+  await runWrite(
+    `
+      MATCH (author:User {id: $authorId})
+      CREATE (post:Post {
+        id: $postId,
+        content: $content,
+        createdAt: $createdAt
+      })
+      CREATE (author)-[:AUTHORED]->(post)
+    `,
+    {
+      authorId,
+      postId: createId("post"),
+      content,
+      createdAt: new Date().toISOString()
+    }
+  );
+
+  return true;
+}
+
+export async function listUsers(viewerId, { limit = 50, offset = 0 } = {}) {
   const result = await runRead(
     `
       MATCH (user:User)
@@ -80,8 +138,9 @@ export async function listUsers(viewerId) {
         followedByViewer: rel IS NOT NULL
       } AS user
       ORDER BY followerCount DESC, user.name
+      SKIP $offset LIMIT $limit
     `,
-    { viewerId }
+    { viewerId, limit: Number(limit), offset: Number(offset) }
   );
 
   return result.records.map((record) => record.get("user"));
@@ -275,7 +334,7 @@ export async function getUserProfile(userId, viewerId) {
   };
 }
 
-export async function getPostList(viewerId) {
+export async function getPostList(viewerId, { limit = 20, offset = 0 } = {}) {
   const result = await runRead(
     `
       MATCH (author:User)-[:AUTHORED]->(post:Post)
@@ -321,11 +380,19 @@ export async function getPostList(viewerId) {
         }
       } AS post
       ORDER BY post.createdAt DESC
+      SKIP $offset LIMIT $limit
     `,
-    { viewerId }
+    { viewerId, limit: Number(limit), offset: Number(offset) }
   );
 
-  return result.records.map((record) => record.get("post"));
+  const posts = result.records.map((record) => record.get("post"));
+
+  if (posts.length) {
+    return posts;
+  }
+
+  const createdFallbackPost = await createFallbackPostIfFeedEmpty(viewerId);
+  return createdFallbackPost ? getPostList(viewerId, { limit, offset }) : posts;
 }
 
 export async function getPostById(postId, viewerId) {
@@ -615,7 +682,7 @@ export async function getDashboard({ viewerId, targetId }) {
 export async function getNotifications(viewerId) {
   assertRequired(viewerId, "Bildirimler icin kullanici oturumu gerekli.");
 
-  const [followersResult, likesResult, commentsResult, viewerResult, readResult] = await Promise.all([
+  const [followersResult, likesResult, commentsResult, messagesResult, viewerResult, readResult] = await Promise.all([
     runRead(
       `
         MATCH (actor:User)-[rel:FOLLOWS]->(:User {id: $viewerId})
@@ -691,6 +758,30 @@ export async function getNotifications(viewerId) {
     ),
     runRead(
       `
+        MATCH (actor:User)-[:SENT]->(message:Message)-[:TO]->(:User {id: $viewerId})
+        WHERE message.seenAt IS NULL
+        RETURN {
+          id: "message-" + message.id,
+          type: "message",
+          title: "Yeni mesaj",
+          body: actor.name + " size mesaj gonderdi: " + message.content,
+          createdAt: message.createdAt,
+          unread: true,
+          actor: actor {
+            .id,
+            .name,
+            .headline,
+            .color,
+            .profileImageUrl
+          }
+        } AS notification
+        ORDER BY notification.createdAt DESC
+        LIMIT 12
+      `,
+      { viewerId }
+    ),
+    runRead(
+      `
         MATCH (viewer:User {id: $viewerId})
         RETURN viewer {
           .createdAt,
@@ -730,6 +821,7 @@ export async function getNotifications(viewerId) {
     ...followersResult.records.map((record) => record.get("notification")),
     ...likesResult.records.map((record) => record.get("notification")),
     ...commentsResult.records.map((record) => record.get("notification")),
+    ...messagesResult.records.map((record) => record.get("notification")),
     ...welcomeNotification
   ];
 
@@ -898,7 +990,7 @@ export async function unfollowUser(viewerId, targetId) {
 
 export async function createPost(payload) {
   const authorId = normalizeText(payload.authorId);
-  const content = normalizeText(payload.content);
+  const content = escapeHtml(normalizeText(payload.content));
 
   assertRequired(authorId, "Paylasim yapacak kullanici secilmedi.");
   const media = await savePostMedia(payload.media);
@@ -952,7 +1044,7 @@ export async function updatePost(userId, role, postId, payload) {
   const existing = await getPostOwner(postId);
   assertPostPermission(existing, userId, role);
 
-  const content = normalizeText(payload.content);
+  const content = escapeHtml(normalizeText(payload.content));
   const media = await savePostMedia(payload.media);
   const removeMedia = Boolean(payload.removeMedia);
   const keepsExistingMedia = !media && !removeMedia && Boolean(existing.mediaUrl);
@@ -1078,7 +1170,7 @@ export async function unlikePost(userId, postId) {
 export async function createComment(payload) {
   const authorId = normalizeText(payload.authorId);
   const postId = normalizeText(payload.postId);
-  const content = normalizeText(payload.content);
+  const content = escapeHtml(normalizeText(payload.content));
 
   assertRequired(authorId, "Yorum yapacak kullanici secilmedi.");
   assertRequired(postId, "Yorum yapilacak gonderi bulunamadi.");

@@ -12,6 +12,7 @@ import { logError, logInfo, logWarn } from "./lib/logger.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import authRouter from "./routes/auth.js";
 import graphRouter from "./routes/graph.js";
+import messagingRouter from "./routes/messaging.js";
 import monitoringRouter from "./routes/monitoring.js";
 import socialRouter from "./routes/social.js";
 
@@ -70,6 +71,7 @@ app.get("/docs", (_req, res) => {
 
 app.use("/api/auth", authRouter);
 app.use("/api/graph", graphRouter);
+app.use("/api", messagingRouter);
 app.use("/api", socialRouter);
 
 app.get("*", (_req, res) => {

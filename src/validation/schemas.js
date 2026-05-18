@@ -66,7 +66,11 @@ export const loginSchema = z.object({
     .trim()
     .email("Gecerli bir e-posta giriniz.")
     .transform((value) => value.toLowerCase()),
-  password: z.string().min(1, "Sifre zorunludur.")
+  password: z
+    .string()
+    .min(1, "Sifre zorunludur.")
+    .min(8, "Sifre en az 8 karakter olmalidir.")
+    .max(128, "Sifre cok uzun.")
 });
 
 export const postSchema = z.object({
@@ -149,4 +153,22 @@ export const commentParamSchema = z.object({
 
 export const notificationParamSchema = z.object({
   notificationId: requiredText("Bildirim", 1, 220)
+});
+
+export const messageSearchQuerySchema = z.object({
+  search: z.string().trim().max(120, "Arama metni en fazla 120 karakter olabilir.").optional().default("")
+});
+
+export const paginationSchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional().default(20),
+  offset: z.coerce.number().int().min(0).optional().default(0)
+});
+
+export const messageSchema = z.object({
+  recipientId: requiredText("Alici", 1, 120),
+  content: z
+    .string()
+    .trim()
+    .min(1, "Mesaj metni bos olamaz.")
+    .max(1000, "Mesaj en fazla 1000 karakter olabilir.")
 });

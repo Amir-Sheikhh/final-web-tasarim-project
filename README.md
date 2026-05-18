@@ -137,6 +137,19 @@ test/                    Unit ve integration testleri
 - OWASP Top 10: https://owasp.org/Top10/
 - OpenAPI Specification: https://spec.openapis.org/oas/latest.html
 
+## Degisiklik Gecmisi
+
+### v1.1.0
+
+- Guvenlik: post ve yorum icerigine XSS sanitizasyon eklendi.
+- Ozellik: `/api/posts` ve `/api/users` endpointlerine `limit`/`offset` pagination eklendi.
+- Test: Neo4j olmadan calisan sanitize, validation ve graph runtime unit testleri eklendi.
+- Dokumantasyon: OpenAPI spec'e pagination parametreleri eklendi.
+
+### v1.0.0
+
+- Ilk surum: Neo4j graph modeli, JWT auth, Cytoscape gorsellestirme ve OpenAPI dokumantasyonu.
+
 ## Lisans
 
 MIT. Ayrinti icin `LICENSE` dosyasina bakiniz.
