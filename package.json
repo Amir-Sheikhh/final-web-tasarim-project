@@ -8,6 +8,8 @@
     "dev": "node src/server.js",
     "test": "node --test",
     "check:status": "node scripts/check-status.js",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
     "seed": "node src/server.js --seed-only",
     "seed:graph": "node src/server.js --seed-only",
     "report": "python scripts/generate_report.py",

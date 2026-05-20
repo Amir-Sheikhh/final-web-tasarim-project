@@ -3,10 +3,14 @@ import fs from "node:fs";
 import { execFileSync } from "node:child_process";
 
 const requiredFiles = [
+  ".github/workflows/ci.yml",
+  "Dockerfile",
+  "docker-compose.yml",
   "src/lib/sanitize.js",
   "test/sanitize.test.js",
   "test/pagination.unit.test.js",
   "docs/openapi.yaml",
+  "docs/GraphLink_Gamma_Sunum_Turkce_fixed_working.pptx",
   "README.md"
 ];
 
@@ -46,6 +50,16 @@ const readme = readText("README.md");
 assert.match(readme, /v1\.2\.0/);
 assert.match(readme, /XSS Sanitization/);
 assert.match(readme, /Pagination/);
+assert.match(readme, /Docker Compose/);
+assert.match(readme, /GitHub Actions/);
+
+const compose = readText("docker-compose.yml");
+assert.match(compose, /neo4j:5-community/);
+assert.match(compose, /bolt:\/\/neo4j:7687/);
+
+const ci = readText(".github/workflows/ci.yml");
+assert.match(ci, /npm ci/);
+assert.match(ci, /npm test/);
 
 const remoteHead = execFileSync("git", ["ls-remote", "origin", "refs/heads/main"], {
   encoding: "utf8"

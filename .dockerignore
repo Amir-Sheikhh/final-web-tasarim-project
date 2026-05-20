@@ -1,0 +1,16 @@
+node_modules
+neo4j-runtime
+run-logs
+.env
+.git
+.github
+screenshots
+docs/report-assets
+docs/rendered-report
+docs/manual-pdf
+docs/image-render-tests
+docs/docx-media
+docs/report.zip
+public/uploads
+*.log
+*.pid

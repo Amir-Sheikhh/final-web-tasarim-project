@@ -28,6 +28,27 @@ Ekran goruntuleri `screenshots/` klasorundedir.
 
 ## Kurulum Adimlari
 
+### Docker Compose ile tek komut
+
+Docker kuruluysa uygulama ve Neo4j birlikte baslatilabilir:
+
+```bash
+npm run docker:up
+```
+
+Bu komut `docker-compose.yml` icindeki iki servisi ayaga kaldirir:
+
+- `app`: Node.js / Express uygulamasi, `http://localhost:3000`
+- `neo4j`: Neo4j Community, `http://localhost:7474` ve `bolt://localhost:7687`
+
+Kapatmak icin:
+
+```bash
+npm run docker:down
+```
+
+### Yerel Windows / Node kurulumu
+
 1. Repoyu klonlayin.
 
 ```bash
@@ -87,6 +108,17 @@ npm test
 
 Neo4j calismiyorsa database entegrasyon testleri otomatik olarak skip edilir; validation ve security unit testleri calisir.
 
+Repo kalite kontrolu:
+
+```bash
+npm run check:status
+```
+
+CI:
+
+- GitHub Actions workflow: `.github/workflows/ci.yml`
+- Her push ve pull request icin `npm ci`, `npm run check:status` ve `npm test` calisir.
+
 ## Proje Yapisi
 
 ```text
@@ -100,6 +132,7 @@ src/
   validation/            Zod semalari
 public/                  Frontend HTML, CSS, JS ve statik assetler
 docs/                    Final raporu, OpenAPI, ADR, diyagramlar
+  GraphLink_Gamma_Sunum_Turkce_fixed_working.pptx
 screenshots/             Demo ekran goruntuleri
 scripts/                 Neo4j kurulum/baslatma ve rapor uretimi
 test/                    Unit ve integration testleri
@@ -139,6 +172,15 @@ test/                    Unit ve integration testleri
 
 ## Degisiklik Gecmisi
 
+### v1.3.0 (Mayis 2026)
+
+Teslim ve calistirilabilirlik iyilestirmeleri:
+
+- Docker Compose eklendi: uygulama ve Neo4j tek komutla baslatilabilir.
+- GitHub Actions CI eklendi: `npm ci`, `npm run check:status` ve `npm test`.
+- PowerPoint dosyasi repo root'undan `docs/` klasorune tasindi.
+- Repo self-check kapsami Docker, CI ve teslim dosyalarini da dogrulayacak sekilde genisletildi.
+
 ### v1.2.0 (Mayis 2026)
 
 Kalite ve Test Iyilestirmeleri:
@@ -157,7 +199,7 @@ Test Coverage:
 
 Test Komutu:
 ```bash
-npm test  # Tum testler (46 pass, database yok ise skip)
+npm test  # Tum testler (47 pass, database yok ise skip)
 ```
 
 ### v1.1.0
