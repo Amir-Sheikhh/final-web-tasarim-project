@@ -6,6 +6,8 @@ BMU1208 Web Tabanli Programlama final projesi. GraphLink, Neo4j graph database u
 
 Repo linki ile inceleme yapan araclar bazen sadece README ve dosya agacini okuyor; kaynak kod kanitlari icin baslangic dosyasi: [`REVIEW.md`](REVIEW.md).
 
+Tek dosyada kaynak inceleme paketi: [`docs/code-review-bundle.md`](docs/code-review-bundle.md).
+
 En kritik kanit dosyalari:
 
 - Express app, CSP ve body limit: [`src/server.js`](src/server.js)

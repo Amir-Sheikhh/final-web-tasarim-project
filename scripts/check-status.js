@@ -14,6 +14,7 @@ const requiredFiles = [
   "test/sanitize.test.js",
   "test/pagination.unit.test.js",
   "docs/openapi.yaml",
+  "docs/code-review-bundle.md",
   "docs/GraphLink_Gamma_Sunum_Turkce_fixed_working.pptx",
   "README.md"
 ];
@@ -67,6 +68,13 @@ assert.match(review, /Reviewer Entry Points/);
 assert.match(review, /src\/services\/authService\.js/);
 assert.match(review, /test\/socialRoutes\.test\.js/);
 assert.match(review, /\.github\/workflows\/ci\.yml/);
+assert.match(review, /Embedded Evidence Snippets/);
+
+const codeReviewBundle = readText("docs/code-review-bundle.md");
+assert.match(codeReviewBundle, /## src\/server\.js/);
+assert.match(codeReviewBundle, /## src\/services\/authService\.js/);
+assert.match(codeReviewBundle, /## test\/socialRoutes\.test\.js/);
+assert.match(codeReviewBundle, /## \.github\/workflows\/ci\.yml/);
 
 const compose = readText("docker-compose.yml");
 assert.match(compose, /neo4j:5-community/);
