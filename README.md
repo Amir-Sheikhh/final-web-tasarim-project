@@ -139,6 +139,27 @@ test/                    Unit ve integration testleri
 
 ## Degisiklik Gecmisi
 
+### v1.2.0 (Mayis 2026)
+
+Kalite ve Test Iyilestirmeleri:
+- ✅ XSS Sanitization: `escapeHtml()` ile post ve yorum icerigini HTML escape
+- ✅ Pagination: `/api/posts` ve `/api/users` endpointlerine limit/offset desteği
+- ✅ Unit Tests: Neo4j olmadan calisan sanitize, pagination ve validation testleri
+- ✅ GraphService Fallback: GDS/APOC plugin'leri yok oldugunda graceful fallback
+- ✅ OpenAPI Dokumantasyon: Pagination parametreleri OpenAPI spec'e eklendi
+
+Test Coverage:
+- `test/sanitize.unit.test.js` - HTML escaping ve XSS prevention testleri
+- `test/pagination.unit.test.js` - Limit/offset parametresi validation testleri
+- `test/socialService.test.js` - Validation ve sanitization testleri
+- `test/graphService.unit.test.js` - Graph plugin availability testleri
+- `test/validation.test.js` - Schema validation kapsamı
+
+Test Komutu:
+```bash
+npm test  # Tum testler (46 pass, database yok ise skip)
+```
+
 ### v1.1.0
 
 - Guvenlik: post ve yorum icerigine XSS sanitizasyon eklendi.
