@@ -143,3 +143,23 @@ test("profileUpdateSchema accepts profile image and rejects video profile image"
     /Profil fotografi/i
   );
 });
+
+test("registerSchema rejects uppercase email and normalizes it", () => {
+  const result = registerSchema.safeParse({
+    name: "Test User",
+    email: "TEST@EXAMPLE.COM",
+    password: "password123",
+    headline: "Dev",
+    color: "#0f766e"
+  });
+
+  assert.equal(result.success, true);
+  assert.equal(result.data.email, "test@example.com");
+});
+
+test("commentSchema handles whitespace-only content", () => {
+  assert.throws(
+    () => commentSchema.parse({ content: "   \n\t  " }),
+    /Yorum metni/i
+  );
+});
