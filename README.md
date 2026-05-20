@@ -132,7 +132,7 @@ npm run check:status
 CI:
 
 - GitHub Actions workflow: `.github/workflows/ci.yml`
-- Her push ve pull request icin `npm ci`, `npm run check:status`, `docker compose config`, `npm run lint` ve `npm test` calisir.
+- Her push ve pull request icin `npm ci`, `npm run check:status`, `docker compose config`, `npm run lint`, Neo4j service seed ve `npm test` calisir.
 
 ## Proje Yapisi
 
@@ -173,6 +173,7 @@ test/                    Unit ve integration testleri
 - GDS/APOC kurulumu: Docker Compose varsayilan cross-platform akistir; Windows PowerShell runtime komutlari alternatif olarak korunur.
 - Auth guvenligi: Tokenlar localStorage yerine HttpOnly cookie ile tutuldu; refresh token hashlenerek Neo4j session node'unda saklandi.
 - Demo tekrarlanabilirligi: `npm run seed:graph` komutu ile ayni graph verisi tekrar uretilebilir hale getirildi.
+- Payload guvenligi: JSON body limit varsayilan olarak `12mb`; post medya yuklemeleri 8 MB binary limit ile sinirlandirilir.
 
 ## Kaynaklar
 
@@ -192,11 +193,15 @@ test/                    Unit ve integration testleri
 Teslim ve calistirilabilirlik iyilestirmeleri:
 
 - Docker Compose eklendi: uygulama ve Neo4j tek komutla baslatilabilir.
-- GitHub Actions CI eklendi: `npm ci`, `npm run check:status`, `docker compose config` ve `npm test`.
+- GitHub Actions CI eklendi: `npm ci`, `npm run check:status`, `docker compose config`, `npm run lint`, Neo4j service seed ve `npm test`.
 - Test runner uyumsuzlugu giderildi: Vitest bagimliligi kaldirildi, tek kaynak `node --test`.
 - Neo4j komutlari cross-platform Docker akisini varsayilan olarak kullanacak sekilde guncellendi; PowerShell komutlari Windows alias'i olarak korundu.
 - ESLint config eklendi ve CI pipeline'a baglandi.
 - `swagger-ui-dist` Scarf telemetry bagimliligi olmayan surume pinlendi.
+- Social route negative-path testleri eklendi; auth, validation ve role guard hatalari route seviyesinde dogrulaniyor.
+- GitHub Actions artik Neo4j service container baslatip `npm run seed:graph` sonrasi testleri calistirir.
+- Upload cleanup hatalari sessizce yutulmak yerine structured warning olarak loglanir.
+- JSON body limit `30mb` hardcode degerinden config tabanli `12mb` varsayilanina indirildi.
 - PowerPoint dosyasi repo root'undan `docs/` klasorune tasindi.
 - Repo self-check kapsami Docker, CI ve teslim dosyalarini da dogrulayacak sekilde genisletildi.
 

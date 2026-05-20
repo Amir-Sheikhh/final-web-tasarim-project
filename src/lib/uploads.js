@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { AppError } from "./http.js";
+import { logWarn } from "./logger.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -93,9 +94,9 @@ export async function savePostMedia(upload) {
   const saved = await saveUpload(upload, {
     prefix: "post",
     allowedTypes: postMediaTypes,
-    maxBytes: 20 * 1024 * 1024,
+    maxBytes: 8 * 1024 * 1024,
     emptyMessage: "Medya dosyasi bos olamaz.",
-    tooLargeMessage: "Medya dosyasi en fazla 20 MB olabilir."
+    tooLargeMessage: "Medya dosyasi en fazla 8 MB olabilir."
   });
 
   if (!saved) {
@@ -132,7 +133,14 @@ export async function removeSavedUpload(upload) {
     return;
   }
 
-  await fs.unlink(upload.path).catch(() => {});
+  try {
+    await fs.unlink(upload.path);
+  } catch (error) {
+    logWarn("upload_cleanup_failed", {
+      path: upload.path,
+      error: error.message
+    });
+  }
 }
 
 export async function removeUploadByUrl(url) {
@@ -140,5 +148,14 @@ export async function removeUploadByUrl(url) {
     return;
   }
 
-  await fs.unlink(path.join(uploadDir, path.basename(url))).catch(() => {});
+  const targetPath = path.join(uploadDir, path.basename(url));
+
+  try {
+    await fs.unlink(targetPath);
+  } catch (error) {
+    logWarn("upload_cleanup_failed", {
+      path: targetPath,
+      error: error.message
+    });
+  }
 }

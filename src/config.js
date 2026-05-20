@@ -13,6 +13,7 @@ function flag(value, fallback = false) {
 
 export const appConfig = {
   port: Number(process.env.PORT ?? 3000),
+  jsonBodyLimit: process.env.JSON_BODY_LIMIT ?? "12mb",
   autoSeed: flag(process.env.AUTO_SEED, true),
   demoPassword: process.env.DEMO_PASSWORD ?? "demo12345",
   neo4j: {

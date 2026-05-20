@@ -11,7 +11,7 @@ const allowedMediaTypes = ["image/jpeg", "image/png", "image/webp", "image/gif",
 const allowedProfileImageTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
 const mediaSchema = z.object({
-  dataUrl: z.string().trim().min(1, "Medya dosyasi okunamadi.").max(30_000_000, "Medya dosyasi cok buyuk."),
+  dataUrl: z.string().trim().min(1, "Medya dosyasi okunamadi.").max(11_500_000, "Medya dosyasi cok buyuk."),
   name: z.string().trim().max(180, "Dosya adi en fazla 180 karakter olabilir.").optional().default("upload"),
   type: z.enum(allowedMediaTypes, {
     message: "Sadece JPG, PNG, WEBP, GIF, MP4, WEBM veya OGG yukleyebilirsiniz."
@@ -127,7 +127,15 @@ export const commentSchema = z.object({
 });
 
 export const followSchema = z.object({
-  targetId: requiredText("Hedef kullanici", 1, 120)
+  targetId: requiredText("Hedef kullanici", 1, 120).optional()
+}).superRefine((payload, context) => {
+  if (!payload.targetId) {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Hedef kullanici zorunludur.",
+      path: ["targetId"]
+    });
+  }
 });
 
 export const targetQuerySchema = z.object({
@@ -160,8 +168,19 @@ export const messageSearchQuerySchema = z.object({
 });
 
 export const paginationSchema = z.object({
-  limit: z.coerce.number().int().min(1).max(100).optional().default(20),
-  offset: z.coerce.number().int().min(0).optional().default(0)
+  limit: z.coerce
+    .number()
+    .int("limit tam sayi olmalidir.")
+    .min(1, "limit en az 1 olmalidir.")
+    .max(100, "limit en fazla 100 olabilir.")
+    .optional()
+    .default(20),
+  offset: z.coerce
+    .number()
+    .int("offset tam sayi olmalidir.")
+    .min(0, "offset negatif olamaz.")
+    .optional()
+    .default(0)
 });
 
 export const messageSchema = z.object({

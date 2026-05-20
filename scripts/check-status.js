@@ -9,6 +9,7 @@ const requiredFiles = [
   "eslint.config.js",
   "scripts/neo4j-docker.js",
   "src/lib/sanitize.js",
+  "test/socialRoutes.test.js",
   "test/sanitize.test.js",
   "test/pagination.unit.test.js",
   "docs/openapi.yaml",
@@ -40,8 +41,8 @@ assert.match(sanitizeTest, /a & b/);
 
 const schemas = readText("src/validation/schemas.js");
 assert.match(schemas, /export const paginationSchema/);
-assert.match(schemas, /limit: z\.coerce\.number\(\)\.int\(\)\.min\(1\)\.max\(100\)/);
-assert.match(schemas, /offset: z\.coerce\.number\(\)\.int\(\)\.min\(0\)/);
+assert.match(schemas, /limit en fazla 100 olabilir/);
+assert.match(schemas, /offset negatif olamaz/);
 
 const openapi = readText("docs/openapi.yaml");
 assert.match(openapi, /name: limit/);
@@ -56,6 +57,8 @@ assert.match(readme, /Docker Compose/);
 assert.match(readme, /GitHub Actions/);
 assert.match(readme, /node --test/);
 assert.match(readme, /ESLint/);
+assert.match(readme, /Neo4j service/);
+assert.match(readme, /12mb/);
 
 const compose = readText("docker-compose.yml");
 assert.match(compose, /neo4j:5-community/);
@@ -66,6 +69,9 @@ assert.match(ci, /npm ci/);
 assert.match(ci, /npm test/);
 assert.match(ci, /npm run lint/);
 assert.match(ci, /docker compose config/);
+assert.match(ci, /services:/);
+assert.match(ci, /neo4j:5-community/);
+assert.match(ci, /npm run seed:graph/);
 
 const packageJson = JSON.parse(readText("package.json"));
 assert.equal(packageJson.scripts.test, "node --test");
@@ -78,6 +84,9 @@ assert.match(packageJson.scripts["neo4j:setup:windows"], /setup-neo4j\.ps1/);
 const packageLock = readText("package-lock.json");
 assert.doesNotMatch(packageLock, /"vitest"/);
 assert.doesNotMatch(packageLock, /@scarf\/scarf/);
+
+const server = readText("src/server.js");
+assert.match(server, /express\.json\(\{ limit: appConfig\.jsonBodyLimit \}\)/);
 
 const remoteHead = execFileSync("git", ["ls-remote", "origin", "refs/heads/main"], {
   encoding: "utf8"

@@ -46,7 +46,7 @@ app.use(
     }
   })
 );
-app.use(express.json({ limit: "30mb" }));
+app.use(express.json({ limit: appConfig.jsonBodyLimit }));
 app.use(cookieParser());
 app.use(requestLogger);
 app.use(express.static(publicDir));
