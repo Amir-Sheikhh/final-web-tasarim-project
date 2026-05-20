@@ -26,5 +26,8 @@ jobs:
       - name: Run repository status check
         run: npm run check:status
 
+      - name: Validate Docker Compose
+        run: docker compose config
+
       - name: Run tests
         run: npm test

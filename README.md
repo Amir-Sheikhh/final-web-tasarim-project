@@ -24,7 +24,7 @@ Ekran goruntuleri `screenshots/` klasorundedir.
 - Auth: JWT access token + HttpOnly refresh cookie
 - Security / validation: Helmet, cookie-parser, Zod, bcryptjs, rate limiting
 - API dokumantasyonu: OpenAPI 3.1 + Swagger UI
-- Test: Node test runner, Supertest
+- Test: Node.js built-in test runner (`node --test`), Supertest
 
 ## Kurulum Adimlari
 
@@ -47,7 +47,7 @@ Kapatmak icin:
 npm run docker:down
 ```
 
-### Yerel Windows / Node kurulumu
+### Yerel Node kurulumu
 
 1. Repoyu klonlayin.
 
@@ -68,7 +68,7 @@ npm install
 cp .env.example .env
 ```
 
-4. Neo4j runtime kurulumunu hazirlayin.
+4. Neo4j servisini cross-platform Docker akisiyle hazirlayin.
 
 ```bash
 npm run neo4j:setup
@@ -78,6 +78,13 @@ npm run neo4j:setup
 
 ```bash
 npm run neo4j:start
+```
+
+Windows'ta Docker kullanmak istemeyenler icin eski PowerShell tabanli yerel runtime komutlari da korunur:
+
+```bash
+npm run neo4j:setup:windows
+npm run neo4j:start:windows
 ```
 
 6. Demo graph verisini yukleyin.
@@ -106,6 +113,8 @@ Test:
 npm test
 ```
 
+Projede tek test runner kullanilir: Node.js built-in test runner. Vitest bagimliligi ozellikle kaldirildi; boylece `node --test` ile package lock arasinda runner uyumsuzlugu yoktur.
+
 Neo4j calismiyorsa database entegrasyon testleri otomatik olarak skip edilir; validation ve security unit testleri calisir.
 
 Repo kalite kontrolu:
@@ -117,7 +126,7 @@ npm run check:status
 CI:
 
 - GitHub Actions workflow: `.github/workflows/ci.yml`
-- Her push ve pull request icin `npm ci`, `npm run check:status` ve `npm test` calisir.
+- Her push ve pull request icin `npm ci`, `npm run check:status`, `docker compose config` ve `npm test` calisir.
 
 ## Proje Yapisi
 
@@ -155,7 +164,7 @@ test/                    Unit ve integration testleri
 
 - Graph DB paradigmasi: SQL tablolari yerine node-edge-property modeli kuruldu. Sosyal ag icin iliskiler dogrudan graph relationship olarak tasarlandi.
 - Cypher sorgulari: Arkadasin arkadasi, mutual connection ve recommendation sorgulari servis katmaninda parcalanarak okunabilir hale getirildi.
-- GDS/APOC kurulumu: Yerel Neo4j runtime icin PowerShell setup scriptleri eklendi.
+- GDS/APOC kurulumu: Docker Compose varsayilan cross-platform akistir; Windows PowerShell runtime komutlari alternatif olarak korunur.
 - Auth guvenligi: Tokenlar localStorage yerine HttpOnly cookie ile tutuldu; refresh token hashlenerek Neo4j session node'unda saklandi.
 - Demo tekrarlanabilirligi: `npm run seed:graph` komutu ile ayni graph verisi tekrar uretilebilir hale getirildi.
 
@@ -177,7 +186,9 @@ test/                    Unit ve integration testleri
 Teslim ve calistirilabilirlik iyilestirmeleri:
 
 - Docker Compose eklendi: uygulama ve Neo4j tek komutla baslatilabilir.
-- GitHub Actions CI eklendi: `npm ci`, `npm run check:status` ve `npm test`.
+- GitHub Actions CI eklendi: `npm ci`, `npm run check:status`, `docker compose config` ve `npm test`.
+- Test runner uyumsuzlugu giderildi: Vitest bagimliligi kaldirildi, tek kaynak `node --test`.
+- Neo4j komutlari cross-platform Docker akisini varsayilan olarak kullanacak sekilde guncellendi; PowerShell komutlari Windows alias'i olarak korundu.
 - PowerPoint dosyasi repo root'undan `docs/` klasorune tasindi.
 - Repo self-check kapsami Docker, CI ve teslim dosyalarini da dogrulayacak sekilde genisletildi.
 

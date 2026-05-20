@@ -6,6 +6,7 @@ const requiredFiles = [
   ".github/workflows/ci.yml",
   "Dockerfile",
   "docker-compose.yml",
+  "scripts/neo4j-docker.js",
   "src/lib/sanitize.js",
   "test/sanitize.test.js",
   "test/pagination.unit.test.js",
@@ -52,6 +53,7 @@ assert.match(readme, /XSS Sanitization/);
 assert.match(readme, /Pagination/);
 assert.match(readme, /Docker Compose/);
 assert.match(readme, /GitHub Actions/);
+assert.match(readme, /node --test/);
 
 const compose = readText("docker-compose.yml");
 assert.match(compose, /neo4j:5-community/);
@@ -60,6 +62,16 @@ assert.match(compose, /bolt:\/\/neo4j:7687/);
 const ci = readText(".github/workflows/ci.yml");
 assert.match(ci, /npm ci/);
 assert.match(ci, /npm test/);
+assert.match(ci, /docker compose config/);
+
+const packageJson = JSON.parse(readText("package.json"));
+assert.equal(packageJson.scripts.test, "node --test");
+assert.equal(packageJson.devDependencies.vitest, undefined);
+assert.match(packageJson.scripts["neo4j:setup"], /node scripts\/neo4j-docker\.js setup/);
+assert.match(packageJson.scripts["neo4j:setup:windows"], /setup-neo4j\.ps1/);
+
+const packageLock = readText("package-lock.json");
+assert.doesNotMatch(packageLock, /"vitest"/);
 
 const remoteHead = execFileSync("git", ["ls-remote", "origin", "refs/heads/main"], {
   encoding: "utf8"

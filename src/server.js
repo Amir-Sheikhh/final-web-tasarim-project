@@ -139,7 +139,7 @@ process.on("SIGTERM", () => {
 if (isMainModule) {
   bootstrap().catch(async (error) => {
     logError("server_start_failed", error, {
-      hint: "Neo4j calismiyorsa once `npm run neo4j:setup` ve `npm run neo4j:start` komutlarini calistirin."
+      hint: "Neo4j calismiyorsa cross-platform Docker akisi icin `npm run neo4j:setup` ve `npm run neo4j:start` komutlarini calistirin."
     });
     await closeDriver();
     process.exit(1);
