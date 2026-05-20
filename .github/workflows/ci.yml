@@ -29,5 +29,8 @@ jobs:
       - name: Validate Docker Compose
         run: docker compose config
 
+      - name: Run lint
+        run: npm run lint
+
       - name: Run tests
         run: npm test

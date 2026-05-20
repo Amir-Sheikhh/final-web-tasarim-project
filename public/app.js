@@ -523,17 +523,11 @@ async function rawRequest(url, options = {}) {
     headers.set("Content-Type", "application/json");
   }
 
-  try {
-    return await fetch(url, {
-      credentials: "same-origin",
-      ...options,
-      headers
-    });
-  } catch (error) {
-    throw new Error(
-      "Backend'e ulaşılamadı. Uygulamayı http://localhost:3000 üzerinden açın ve önce `npm start` ile server'ı çalıştırın."
-    );
-  }
+  return fetch(url, {
+    credentials: "same-origin",
+    ...options,
+    headers
+  });
 }
 
 function getCssVar(name) {
@@ -725,9 +719,7 @@ function initTheme() {
     savedAccent = localStorage.getItem("graphlink-accent");
     savedBackground = localStorage.getItem("graphlink-background");
   } catch (_error) {
-    savedTheme = null;
-    savedAccent = null;
-    savedBackground = null;
+    // localStorage can be unavailable in restricted browser contexts.
   }
 
   setTheme(savedTheme || document.documentElement.dataset.theme || "dark");

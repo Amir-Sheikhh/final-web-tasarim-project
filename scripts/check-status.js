@@ -6,6 +6,7 @@ const requiredFiles = [
   ".github/workflows/ci.yml",
   "Dockerfile",
   "docker-compose.yml",
+  "eslint.config.js",
   "scripts/neo4j-docker.js",
   "src/lib/sanitize.js",
   "test/sanitize.test.js",
@@ -54,6 +55,7 @@ assert.match(readme, /Pagination/);
 assert.match(readme, /Docker Compose/);
 assert.match(readme, /GitHub Actions/);
 assert.match(readme, /node --test/);
+assert.match(readme, /ESLint/);
 
 const compose = readText("docker-compose.yml");
 assert.match(compose, /neo4j:5-community/);
@@ -62,16 +64,20 @@ assert.match(compose, /bolt:\/\/neo4j:7687/);
 const ci = readText(".github/workflows/ci.yml");
 assert.match(ci, /npm ci/);
 assert.match(ci, /npm test/);
+assert.match(ci, /npm run lint/);
 assert.match(ci, /docker compose config/);
 
 const packageJson = JSON.parse(readText("package.json"));
 assert.equal(packageJson.scripts.test, "node --test");
+assert.equal(packageJson.scripts.lint, "eslint .");
 assert.equal(packageJson.devDependencies.vitest, undefined);
+assert.notEqual(packageJson.devDependencies.eslint, undefined);
 assert.match(packageJson.scripts["neo4j:setup"], /node scripts\/neo4j-docker\.js setup/);
 assert.match(packageJson.scripts["neo4j:setup:windows"], /setup-neo4j\.ps1/);
 
 const packageLock = readText("package-lock.json");
 assert.doesNotMatch(packageLock, /"vitest"/);
+assert.doesNotMatch(packageLock, /@scarf\/scarf/);
 
 const remoteHead = execFileSync("git", ["ls-remote", "origin", "refs/heads/main"], {
   encoding: "utf8"

@@ -113,6 +113,12 @@ Test:
 npm test
 ```
 
+Lint:
+
+```bash
+npm run lint
+```
+
 Projede tek test runner kullanilir: Node.js built-in test runner. Vitest bagimliligi ozellikle kaldirildi; boylece `node --test` ile package lock arasinda runner uyumsuzlugu yoktur.
 
 Neo4j calismiyorsa database entegrasyon testleri otomatik olarak skip edilir; validation ve security unit testleri calisir.
@@ -126,7 +132,7 @@ npm run check:status
 CI:
 
 - GitHub Actions workflow: `.github/workflows/ci.yml`
-- Her push ve pull request icin `npm ci`, `npm run check:status`, `docker compose config` ve `npm test` calisir.
+- Her push ve pull request icin `npm ci`, `npm run check:status`, `docker compose config`, `npm run lint` ve `npm test` calisir.
 
 ## Proje Yapisi
 
@@ -189,6 +195,8 @@ Teslim ve calistirilabilirlik iyilestirmeleri:
 - GitHub Actions CI eklendi: `npm ci`, `npm run check:status`, `docker compose config` ve `npm test`.
 - Test runner uyumsuzlugu giderildi: Vitest bagimliligi kaldirildi, tek kaynak `node --test`.
 - Neo4j komutlari cross-platform Docker akisini varsayilan olarak kullanacak sekilde guncellendi; PowerShell komutlari Windows alias'i olarak korundu.
+- ESLint config eklendi ve CI pipeline'a baglandi.
+- `swagger-ui-dist` Scarf telemetry bagimliligi olmayan surume pinlendi.
 - PowerPoint dosyasi repo root'undan `docs/` klasorune tasindi.
 - Repo self-check kapsami Docker, CI ve teslim dosyalarini da dogrulayacak sekilde genisletildi.
 
