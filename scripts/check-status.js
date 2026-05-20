@@ -15,6 +15,7 @@ const requiredFiles = [
   "test/pagination.unit.test.js",
   "docs/openapi.yaml",
   "docs/code-review-bundle.md",
+  "docs/development-history.md",
   "docs/GraphLink_Gamma_Sunum_Turkce_fixed_working.pptx",
   "README.md"
 ];
@@ -62,6 +63,8 @@ assert.match(readme, /ESLint/);
 assert.match(readme, /Neo4j service/);
 assert.match(readme, /12mb/);
 assert.match(readme, /REVIEW\.md/);
+assert.match(readme, /Commit count: `18`/);
+assert.match(readme, /development-history\.md/);
 
 const review = readText("REVIEW.md");
 assert.match(review, /Reviewer Entry Points/);
@@ -75,6 +78,11 @@ assert.match(codeReviewBundle, /## src\/server\.js/);
 assert.match(codeReviewBundle, /## src\/services\/authService\.js/);
 assert.match(codeReviewBundle, /## test\/socialRoutes\.test\.js/);
 assert.match(codeReviewBundle, /## \.github\/workflows\/ci\.yml/);
+
+const developmentHistory = readText("docs/development-history.md");
+assert.match(developmentHistory, /current `main` branch has 18 commits/);
+assert.match(developmentHistory, /c0d0a5f test: cover social route negative paths and harden ci/);
+assert.match(developmentHistory, /934ca28 Prepare GraphLink final project submission/);
 
 const compose = readText("docker-compose.yml");
 assert.match(compose, /neo4j:5-community/);

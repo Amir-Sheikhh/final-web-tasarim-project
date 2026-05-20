@@ -8,6 +8,15 @@ Repo linki ile inceleme yapan araclar bazen sadece README ve dosya agacini okuyo
 
 Tek dosyada kaynak inceleme paketi: [`docs/code-review-bundle.md`](docs/code-review-bundle.md).
 
+Gelistirme gecmisi kaniti: [`docs/development-history.md`](docs/development-history.md).
+
+Son dogrulanan durum:
+
+- Branch: `main`
+- Commit count: `18`
+- Verified head: `e64cfa1f3cfdd25f561eeb66fa3999fdc69718d5`
+- Quality gates: `npm run check:status`, `npm run lint`, `npm test`
+
 En kritik kanit dosyalari:
 
 - Express app, CSP ve body limit: [`src/server.js`](src/server.js)
@@ -17,6 +26,7 @@ En kritik kanit dosyalari:
 - Security tests: [`test/security.test.js`](test/security.test.js)
 - CI + Neo4j service: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 - Dependency hygiene: [`package.json`](package.json), [`package-lock.json`](package-lock.json)
+- Commit history: [`docs/development-history.md`](docs/development-history.md)
 
 Son dogrulama komutlari:
 
