@@ -8,6 +8,8 @@ import {
   signAccessToken,
   verifyAccessToken
 } from "../src/lib/security.js";
+import request from "supertest";
+import { app } from "../src/server.js";
 
 test("normalizeEmail trims and lowercases", () => {
   assert.equal(normalizeEmail("  USER@Example.COM "), "user@example.com");
@@ -45,4 +47,12 @@ test("signed access token can be verified", () => {
   assert.equal(payload.sub, "user-1");
   assert.equal(payload.email, "user@example.com");
   assert.equal(payload.role, "member");
+});
+
+test("content security policy blocks inline scripts", async () => {
+  const response = await request(app).get("/");
+  const csp = response.headers["content-security-policy"] ?? "";
+
+  assert.match(csp, /script-src 'self'/);
+  assert.doesNotMatch(csp, /script-src[^;]*'unsafe-inline'/);
 });
