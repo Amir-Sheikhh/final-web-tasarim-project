@@ -7,6 +7,7 @@ const requiredFiles = [
   "Dockerfile",
   "docker-compose.yml",
   "eslint.config.js",
+  "REVIEW.md",
   "scripts/neo4j-docker.js",
   "src/lib/sanitize.js",
   "test/socialRoutes.test.js",
@@ -59,6 +60,13 @@ assert.match(readme, /node --test/);
 assert.match(readme, /ESLint/);
 assert.match(readme, /Neo4j service/);
 assert.match(readme, /12mb/);
+assert.match(readme, /REVIEW\.md/);
+
+const review = readText("REVIEW.md");
+assert.match(review, /Reviewer Entry Points/);
+assert.match(review, /src\/services\/authService\.js/);
+assert.match(review, /test\/socialRoutes\.test\.js/);
+assert.match(review, /\.github\/workflows\/ci\.yml/);
 
 const compose = readText("docker-compose.yml");
 assert.match(compose, /neo4j:5-community/);

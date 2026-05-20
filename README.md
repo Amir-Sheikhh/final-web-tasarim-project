@@ -2,6 +2,28 @@
 
 BMU1208 Web Tabanli Programlama final projesi. GraphLink, Neo4j graph database uzerinde kullanici, takip, gonderi, begeni, yorum ve oturum verilerini modelleyen full-stack bir sosyal ag onerisi demosudur.
 
+## Reviewer Quick Links
+
+Repo linki ile inceleme yapan araclar bazen sadece README ve dosya agacini okuyor; kaynak kod kanitlari icin baslangic dosyasi: [`REVIEW.md`](REVIEW.md).
+
+En kritik kanit dosyalari:
+
+- Express app, CSP ve body limit: [`src/server.js`](src/server.js)
+- Auth, refresh rotation ve password hashing: [`src/services/authService.js`](src/services/authService.js)
+- Graph endpointleri: [`src/routes/graph.js`](src/routes/graph.js)
+- Social route negative-path testleri: [`test/socialRoutes.test.js`](test/socialRoutes.test.js)
+- Security tests: [`test/security.test.js`](test/security.test.js)
+- CI + Neo4j service: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
+- Dependency hygiene: [`package.json`](package.json), [`package-lock.json`](package-lock.json)
+
+Son dogrulama komutlari:
+
+```bash
+npm run check:status
+npm run lint
+npm test
+```
+
 ## Hazirlayan
 
 - Ad Soyad: AMIR SHEIKH
