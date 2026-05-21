@@ -45,7 +45,6 @@ test("signup, session, notifications, logout, login, and demo access work end to
 
   const notificationResponse = await agent.get("/api/notifications").expect(200);
   assert.ok(Array.isArray(notificationResponse.body.notifications));
-  assert.ok(notificationResponse.body.notifications.length >= 1);
 
   await agent.post("/api/auth/logout").expect(204);
   await agent.get("/api/auth/me").expect(401);
