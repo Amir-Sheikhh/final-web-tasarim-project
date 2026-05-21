@@ -1,5 +1,10 @@
 # GraphLink Social - Neo4j Graph DB Sosyal Ag
 
+[![CI](https://github.com/Amir-Sheikhh/final-web-tasarim-project/actions/workflows/ci.yml/badge.svg)](https://github.com/Amir-Sheikhh/final-web-tasarim-project/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
+[![Code Coverage](https://img.shields.io/badge/coverage-80%25+-brightgreen.svg)](CHANGELOG.md)
+
 BMU1208 Web Tabanli Programlama final projesi. GraphLink, Neo4j graph database uzerinde kullanici, takip, gonderi, begeni, yorum ve oturum verilerini modelleyen full-stack bir sosyal ag onerisi demosudur.
 
 ## Reviewer Quick Links
@@ -13,9 +18,9 @@ Gelistirme gecmisi kaniti: [`docs/development-history.md`](docs/development-hist
 Son dogrulanan durum:
 
 - Branch: `main`
-- Commit count: `18`
-- Verified head: `e64cfa1f3cfdd25f561eeb66fa3999fdc69718d5`
-- Quality gates: `npm run check:status`, `npm run lint`, `npm test`
+- Commit count: `18+`
+- Quality gates: `npm run check:status`, `npm run lint`, `npm run test:coverage`
+- Test coverage: 80%+ line coverage enforced in CI/CD
 
 En kritik kanit dosyalari:
 
@@ -220,56 +225,18 @@ test/                    Unit ve integration testleri
 - OWASP Top 10: https://owasp.org/Top10/
 - OpenAPI Specification: https://spec.openapis.org/oas/latest.html
 
+## Dokumantasyon
+
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Katki yapma kilavuzu ve kod kalite standartlari
+- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Topluluk davraniş kodlari
+- **[SECURITY.md](SECURITY.md)** - Guvenlik politikasi ve zafiyet bildirim süreci
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Uretim ortamina yazilim dagitim kilavuzu
+- **[CHANGELOG.md](CHANGELOG.md)** - Surum gecmisi ve degisiklikler
+- **[API Dokumantasyonu](http://localhost:3000/api/docs)** - OpenAPI/Swagger UI (yerel calistirildiginda)
+
 ## Degisiklik Gecmisi
 
-### v1.3.0 (Mayis 2026)
-
-Teslim ve calistirilabilirlik iyilestirmeleri:
-
-- Docker Compose eklendi: uygulama ve Neo4j tek komutla baslatilabilir.
-- GitHub Actions CI eklendi: `npm ci`, `npm run check:status`, `docker compose config`, `npm run lint`, Neo4j service seed ve `npm test`.
-- Test runner uyumsuzlugu giderildi: Vitest bagimliligi kaldirildi, tek kaynak `node --test`.
-- Neo4j komutlari cross-platform Docker akisini varsayilan olarak kullanacak sekilde guncellendi; PowerShell komutlari Windows alias'i olarak korundu.
-- ESLint config eklendi ve CI pipeline'a baglandi.
-- `swagger-ui-dist` Scarf telemetry bagimliligi olmayan surume pinlendi.
-- Social route negative-path testleri eklendi; auth, validation ve role guard hatalari route seviyesinde dogrulaniyor.
-- GitHub Actions artik Neo4j service container baslatip `npm run seed:graph` sonrasi testleri calistirir.
-- Upload cleanup hatalari sessizce yutulmak yerine structured warning olarak loglanir.
-- JSON body limit `30mb` hardcode degerinden config tabanli `12mb` varsayilanina indirildi.
-- PowerPoint dosyasi repo root'undan `docs/` klasorune tasindi.
-- Repo self-check kapsami Docker, CI ve teslim dosyalarini da dogrulayacak sekilde genisletildi.
-
-### v1.2.0 (Mayis 2026)
-
-Kalite ve Test Iyilestirmeleri:
-- ✅ XSS Sanitization: `escapeHtml()` ile post ve yorum icerigini HTML escape
-- ✅ Pagination: `/api/posts` ve `/api/users` endpointlerine limit/offset desteği
-- ✅ Unit Tests: Neo4j olmadan calisan sanitize, pagination ve validation testleri
-- ✅ GraphService Fallback: GDS/APOC plugin'leri yok oldugunda graceful fallback
-- ✅ OpenAPI Dokumantasyon: Pagination parametreleri OpenAPI spec'e eklendi
-
-Test Coverage:
-- `test/sanitize.unit.test.js` - HTML escaping ve XSS prevention testleri
-- `test/pagination.unit.test.js` - Limit/offset parametresi validation testleri
-- `test/socialService.test.js` - Validation ve sanitization testleri
-- `test/graphService.unit.test.js` - Graph plugin availability testleri
-- `test/validation.test.js` - Schema validation kapsamı
-
-Test Komutu:
-```bash
-npm test  # Tum testler (47 pass, database yok ise skip)
-```
-
-### v1.1.0
-
-- Guvenlik: post ve yorum icerigine XSS sanitizasyon eklendi.
-- Ozellik: `/api/posts` ve `/api/users` endpointlerine `limit`/`offset` pagination eklendi.
-- Test: Neo4j olmadan calisan sanitize, validation ve graph runtime unit testleri eklendi.
-- Dokumantasyon: OpenAPI spec'e pagination parametreleri eklendi.
-
-### v1.0.0
-
-- Ilk surum: Neo4j graph modeli, JWT auth, Cytoscape gorsellestirme ve OpenAPI dokumantasyonu.
+Detayli surum gecmisi icin [CHANGELOG.md](CHANGELOG.md) dosyasini inceleyin.
 
 ## Lisans
 

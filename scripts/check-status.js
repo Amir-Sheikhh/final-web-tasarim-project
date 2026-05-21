@@ -7,7 +7,15 @@ const requiredFiles = [
   "Dockerfile",
   "docker-compose.yml",
   "eslint.config.js",
+  "nodemon.json",
   "REVIEW.md",
+  "CONTRIBUTING.md",
+  "CODE_OF_CONDUCT.md",
+  "SECURITY.md",
+  "DEPLOYMENT.md",
+  "CHANGELOG.md",
+  "README.md",
+  "README.en.md",
   "scripts/neo4j-docker.js",
   "src/lib/sanitize.js",
   "test/socialRoutes.test.js",
@@ -16,8 +24,8 @@ const requiredFiles = [
   "docs/openapi.yaml",
   "docs/code-review-bundle.md",
   "docs/development-history.md",
+  "docs/API_ERRORS.md",
   "docs/GraphLink_Gamma_Sunum_Turkce_fixed_working.pptx",
-  "README.md"
 ];
 
 function readText(path) {
@@ -53,18 +61,23 @@ assert.match(openapi, /name: offset/);
 assert.match(openapi, /maximum: 100/);
 
 const readme = readText("README.md");
-assert.match(readme, /v1\.2\.0/);
-assert.match(readme, /XSS Sanitization/);
-assert.match(readme, /Pagination/);
+assert.match(readme, /CONTRIBUTING\.md/);
+assert.match(readme, /CODE_OF_CONDUCT\.md/);
+assert.match(readme, /SECURITY\.md/);
+assert.match(readme, /DEPLOYMENT\.md/);
+assert.match(readme, /CHANGELOG\.md/);
 assert.match(readme, /Docker Compose/);
 assert.match(readme, /GitHub Actions/);
 assert.match(readme, /node --test/);
-assert.match(readme, /ESLint/);
 assert.match(readme, /Neo4j service/);
 assert.match(readme, /12mb/);
 assert.match(readme, /REVIEW\.md/);
-assert.match(readme, /Commit count: `18`/);
 assert.match(readme, /development-history\.md/);
+
+const changelog = readText("CHANGELOG.md");
+assert.match(changelog, /1\.2\.0/);
+assert.match(changelog, /1\.3\.0/);
+assert.match(changelog, /Code coverage/i);
 
 const review = readText("REVIEW.md");
 assert.match(review, /Reviewer Entry Points/);
@@ -90,8 +103,9 @@ assert.match(compose, /bolt:\/\/neo4j:7687/);
 
 const ci = readText(".github/workflows/ci.yml");
 assert.match(ci, /npm ci/);
-assert.match(ci, /npm test/);
+assert.match(ci, /npm run test:coverage/);
 assert.match(ci, /npm run lint/);
+assert.match(ci, /npm audit/);
 assert.match(ci, /docker compose config/);
 assert.match(ci, /services:/);
 assert.match(ci, /neo4j:5-community/);
@@ -100,7 +114,11 @@ assert.match(ci, /npm run seed:graph/);
 const packageJson = JSON.parse(readText("package.json"));
 assert.equal(packageJson.scripts.test, "node --test");
 assert.equal(packageJson.scripts.lint, "eslint .");
+assert.match(packageJson.scripts["test:coverage"], /c8/);
+assert.match(packageJson.scripts.dev, /nodemon/);
 assert.equal(packageJson.devDependencies.vitest, undefined);
+assert.notEqual(packageJson.devDependencies.c8, undefined);
+assert.notEqual(packageJson.devDependencies.nodemon, undefined);
 assert.notEqual(packageJson.devDependencies.eslint, undefined);
 assert.match(packageJson.scripts["neo4j:setup"], /node scripts\/neo4j-docker\.js setup/);
 assert.match(packageJson.scripts["neo4j:setup:windows"], /setup-neo4j\.ps1/);
