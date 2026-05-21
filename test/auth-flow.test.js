@@ -5,12 +5,14 @@ import request from "supertest";
 import { app } from "../src/server.js";
 import { closeDriver, verifyConnection } from "../src/db/neo4j.js";
 
-let databaseAvailable = true;
+let databaseAvailable = process.env.SKIP_DB_TESTS !== "true";
 
-try {
-  await verifyConnection();
-} catch (_error) {
-  databaseAvailable = false;
+if (databaseAvailable) {
+  try {
+    await verifyConnection();
+  } catch (_error) {
+    databaseAvailable = false;
+  }
 }
 
 after(async () => {

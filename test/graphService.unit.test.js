@@ -4,13 +4,15 @@ import test from "node:test";
 import { closeDriver } from "../src/db/neo4j.js";
 import { getGraphRuntimeStatus } from "../src/services/graphService.js";
 
-let databaseAvailable = true;
+let databaseAvailable = process.env.SKIP_DB_TESTS !== "true";
 
-try {
-  const { verifyConnection } = await import("../src/db/neo4j.js");
-  await verifyConnection();
-} catch (_error) {
-  databaseAvailable = false;
+if (databaseAvailable) {
+  try {
+    const { verifyConnection } = await import("../src/db/neo4j.js");
+    await verifyConnection();
+  } catch (_error) {
+    databaseAvailable = false;
+  }
 }
 
 after(async () => {
