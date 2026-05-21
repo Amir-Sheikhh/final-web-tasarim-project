@@ -1,0 +1,7 @@
+{
+  "watch": ["src"],
+  "ignore": ["node_modules", "test", "public", ".git"],
+  "ext": "js",
+  "delay": 500,
+  "exitOnChange": false
+}
