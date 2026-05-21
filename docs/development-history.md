@@ -1,16 +1,25 @@
 # Development History
 
-This repository is not a 3-commit dump. The current `main` branch has 18 commits and shows iterative work across features, tests, security, CI, Docker, dependency hygiene, and reviewer-facing documentation.
+This repository is not a 3-commit dump. The current `main` branch has 27 commits at the last local verification point and shows iterative work across features, tests, security, CI, Docker, dependency hygiene, and reviewer-facing documentation.
 
 ## Current Verified Head
 
 - Branch: `main`
-- Commit count at last verification: `18`
-- Verified head: `e64cfa1f3cfdd25f561eeb66fa3999fdc69718d5`
+- Commit count at last verification: `27`
+- Verified head before final examiner hygiene pass: `9bb74699acf824150d76f61b7c13acb46019ff96`
 
 ## Commit Timeline
 
 ```text
+9bb7469 docs: add comprehensive English README
+fdea2c7 feat: add nodemon for hot-reload development
+77f888d docs: update README with badges and documentation links
+e5efb01 feat: add GitHub issue and PR templates
+6bdb01e docs: add deployment guide and API error documentation
+137fb86 docs: add governance and community guidelines
+3924633 ci: add coverage enforcement and security audit
+b10a58f test: add c8 code coverage tool
+f426b92 docs: expose development history to reviewers
 e64cfa1 docs: add self-contained code review bundle
 c291050 docs: add reviewer entry points
 c0d0a5f test: cover social route negative paths and harden ci

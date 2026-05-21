@@ -71,8 +71,14 @@ assert.match(readme, /GitHub Actions/);
 assert.match(readme, /node --test/);
 assert.match(readme, /Neo4j service/);
 assert.match(readme, /12mb/);
+assert.match(readme, /localhost:3000\/docs/);
+assert.doesNotMatch(readme, /localhost:3000\/api\/docs/);
 assert.match(readme, /REVIEW\.md/);
 assert.match(readme, /development-history\.md/);
+
+const readmeEn = readText("README.en.md");
+assert.match(readmeEn, /localhost:3000\/docs/);
+assert.doesNotMatch(readmeEn, /localhost:3000\/api\/docs/);
 
 const changelog = readText("CHANGELOG.md");
 assert.match(changelog, /1\.2\.0/);
@@ -83,6 +89,7 @@ const review = readText("REVIEW.md");
 assert.match(review, /Reviewer Entry Points/);
 assert.match(review, /src\/services\/authService\.js/);
 assert.match(review, /test\/socialRoutes\.test\.js/);
+assert.match(review, /9bb74699acf824150d76f61b7c13acb46019ff96/);
 assert.match(review, /\.github\/workflows\/ci\.yml/);
 assert.match(review, /Embedded Evidence Snippets/);
 
@@ -93,7 +100,8 @@ assert.match(codeReviewBundle, /## test\/socialRoutes\.test\.js/);
 assert.match(codeReviewBundle, /## \.github\/workflows\/ci\.yml/);
 
 const developmentHistory = readText("docs/development-history.md");
-assert.match(developmentHistory, /current `main` branch has 18 commits/);
+assert.match(developmentHistory, /current `main` branch has 27 commits/);
+assert.match(developmentHistory, /9bb7469 docs: add comprehensive English README/);
 assert.match(developmentHistory, /c0d0a5f test: cover social route negative paths and harden ci/);
 assert.match(developmentHistory, /934ca28 Prepare GraphLink final project submission/);
 
@@ -114,7 +122,7 @@ assert.match(ci, /npm run seed:graph/);
 const packageJson = JSON.parse(readText("package.json"));
 assert.equal(packageJson.scripts.test, "node --test");
 assert.equal(packageJson.scripts.lint, "eslint .");
-assert.match(packageJson.scripts["test:coverage"], /c8/);
+assert.equal(packageJson.scripts["test:coverage"], "c8 npm test");
 assert.match(packageJson.scripts.dev, /nodemon/);
 assert.equal(packageJson.devDependencies.vitest, undefined);
 assert.notEqual(packageJson.devDependencies.c8, undefined);

@@ -3,7 +3,7 @@
 [![CI](https://github.com/Amir-Sheikhh/final-web-tasarim-project/actions/workflows/ci.yml/badge.svg)](https://github.com/Amir-Sheikhh/final-web-tasarim-project/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
-[![Code Coverage](https://img.shields.io/badge/coverage-80%25+-brightgreen.svg)](CHANGELOG.md)
+[![Coverage](https://img.shields.io/badge/coverage-c8%20report-blue.svg)](CHANGELOG.md)
 
 A full-stack social networking application demonstrating Neo4j graph database capabilities. Built with Node.js, Express, and Cytoscape.js for interactive graph visualization. This project showcases relationship-driven features like friend discovery, content recommendations, and network analysis.
 
@@ -20,7 +20,7 @@ npm run docker:up
 Access at:
 - **App:** http://localhost:3000
 - **Neo4j Browser:** http://localhost:7474
-- **API Docs:** http://localhost:3000/api/docs
+- **API Docs:** http://localhost:3000/docs
 
 ### Local Development
 ```bash
@@ -119,7 +119,7 @@ npm start               # Start production server
 
 # Testing & Quality
 npm test                # Run all tests
-npm run test:coverage   # Run tests with coverage report (80% threshold)
+npm run test:coverage   # Run tests with c8 coverage report
 npm run lint            # ESLint validation
 npm run check:status    # Repository self-check
 
@@ -147,10 +147,10 @@ npm run dev
 ### Testing
 
 ```bash
-# Run all tests (47 tests)
+# Run all tests (60 tests)
 npm test
 
-# With coverage report (enforces 80% line coverage)
+# With c8 coverage report
 npm run test:coverage
 
 # Tests run against actual Neo4j instance
@@ -187,7 +187,7 @@ npm run report
 
 ## API Documentation
 
-### Available at `/api/docs` (when server running)
+### Available at `/docs` (when server running)
 
 **Example Endpoints:**
 ```bash

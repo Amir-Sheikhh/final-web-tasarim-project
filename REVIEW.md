@@ -5,13 +5,13 @@ This file points reviewers to the source files that prove the main architecture,
 ## Verified Status
 
 - Latest verified branch: `main`
-- Commit count at last verification: `18`
-- Verified head: `e64cfa1f3cfdd25f561eeb66fa3999fdc69718d5`
+- Commit count at last verification: `27`
+- Verified head before final examiner hygiene pass: `9bb74699acf824150d76f61b7c13acb46019ff96`
 - Local verification commands:
   - `npm run check:status`
   - `npm run lint`
   - `npm test`
-- Current local result: 54 passing tests, 4 skipped only when local Neo4j is unavailable.
+- Current local result after final examiner hygiene pass: 56 passing tests, 4 skipped only when local Neo4j is unavailable.
 - CI starts Neo4j as a service container, seeds the graph, lints, and runs tests.
 - Commit history evidence is summarized in [`docs/development-history.md`](docs/development-history.md).
 

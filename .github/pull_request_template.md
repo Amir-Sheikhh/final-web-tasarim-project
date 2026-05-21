@@ -16,7 +16,7 @@ Fixes #(issue number)
 Describe how you tested these changes:
 
 - [ ] Unit tests pass: `npm test`
-- [ ] Test coverage meets threshold: `npm run test:coverage`
+- [ ] Test coverage report generated: `npm run test:coverage`
 - [ ] Linting passes: `npm run lint`
 - [ ] Manual testing completed
 

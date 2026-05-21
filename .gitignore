@@ -1,4 +1,5 @@
 node_modules/
+coverage/
 neo4j-runtime/
 run-logs/
 .env

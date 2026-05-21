@@ -3,7 +3,7 @@
 [![CI](https://github.com/Amir-Sheikhh/final-web-tasarim-project/actions/workflows/ci.yml/badge.svg)](https://github.com/Amir-Sheikhh/final-web-tasarim-project/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
-[![Code Coverage](https://img.shields.io/badge/coverage-80%25+-brightgreen.svg)](CHANGELOG.md)
+[![Coverage](https://img.shields.io/badge/coverage-c8%20report-blue.svg)](CHANGELOG.md)
 
 BMU1208 Web Tabanli Programlama final projesi. GraphLink, Neo4j graph database uzerinde kullanici, takip, gonderi, begeni, yorum ve oturum verilerini modelleyen full-stack bir sosyal ag onerisi demosudur.
 
@@ -18,9 +18,9 @@ Gelistirme gecmisi kaniti: [`docs/development-history.md`](docs/development-hist
 Son dogrulanan durum:
 
 - Branch: `main`
-- Commit count: `18+`
+- Commit count: `27+`
 - Quality gates: `npm run check:status`, `npm run lint`, `npm run test:coverage`
-- Test coverage: 80%+ line coverage enforced in CI/CD
+- Test coverage: c8 coverage report generated in CI/CD
 
 En kritik kanit dosyalari:
 
@@ -232,7 +232,7 @@ test/                    Unit ve integration testleri
 - **[SECURITY.md](SECURITY.md)** - Guvenlik politikasi ve zafiyet bildirim süreci
 - **[DEPLOYMENT.md](DEPLOYMENT.md)** - Uretim ortamina yazilim dagitim kilavuzu
 - **[CHANGELOG.md](CHANGELOG.md)** - Surum gecmisi ve degisiklikler
-- **[API Dokumantasyonu](http://localhost:3000/api/docs)** - OpenAPI/Swagger UI (yerel calistirildiginda)
+- **[API Dokumantasyonu](http://localhost:3000/docs)** - OpenAPI/Swagger UI (yerel calistirildiginda)
 
 ## Degisiklik Gecmisi
 

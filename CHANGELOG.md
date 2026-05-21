@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Code coverage reporting with c8 (80% line threshold)
+- Code coverage reporting with c8
 - Security audit in CI/CD pipeline
 - Community governance documentation:
   - CONTRIBUTING.md - Contributor guidelines
