@@ -53,9 +53,8 @@ PORT=3000
 
 # Neo4j Database
 NEO4J_URI=bolt://localhost:7687
-NEO4J_AUTH_DISABLED=true
-# OR for auth:
-NEO4J_USER=neo4j
+NEO4J_AUTH_DISABLED=false
+NEO4J_USERNAME=neo4j
 NEO4J_PASSWORD=yourpassword
 
 # Security
@@ -128,7 +127,7 @@ volumes:
 - [ ] Enable Neo4j authentication (change default password)
 - [ ] Use HTTPS (SSL/TLS certificate)
 - [ ] Configure CORS for allowed origins only
-- [ ] Set secure cookies: `SECURE_COOKIES=true`
+- [ ] Set secure cookies: `COOKIE_SECURE=true`
 - [ ] Use rate limiting appropriate for your scale
 - [ ] Enable Neo4j Enterprise or cloud provider for HA
 - [ ] Setup monitoring and logging

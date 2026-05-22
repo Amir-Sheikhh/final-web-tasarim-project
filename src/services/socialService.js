@@ -53,63 +53,6 @@ function pickFirstUser(users, fallbackId) {
   return users[0]?.id ?? null;
 }
 
-const fallbackPostMessages = [
-  "Bugun graph akisinda yeni baglantilar ve oneriler kontrol edildi. Feed tekrar canli.",
-  "Elite Circle test gonderisi: takip, begeni ve yorum akisi calisir durumda.",
-  "Sistem bos feed yakaladi ve yeni bir demo paylasim olusturdu.",
-  "GraphLink akis testi basarili. Kullanici paneli ve gonderi listesi aktif.",
-  "Yeni demo gonderisi eklendi; sosyal graph tekrar icerik gostermeye hazir."
-];
-
-async function createFallbackPostIfFeedEmpty(viewerId) {
-  const result = await runRead("MATCH (post:Post) RETURN count(post) AS count");
-  const postCount = Number(result.records[0]?.get("count") ?? 0);
-
-  if (postCount > 0) {
-    return false;
-  }
-
-  const authorResult = await runRead(
-    `
-      OPTIONAL MATCH (viewer:User {id: $viewerId})
-      WITH viewer
-      OPTIONAL MATCH (anyUser:User)
-      WITH coalesce(viewer, anyUser) AS author
-      WHERE author IS NOT NULL
-      RETURN author.id AS authorId
-      ORDER BY author.name
-      LIMIT 1
-    `,
-    { viewerId }
-  );
-  const authorId = authorResult.records[0]?.get("authorId");
-
-  if (!authorId) {
-    return false;
-  }
-
-  const content = fallbackPostMessages[Math.floor(Math.random() * fallbackPostMessages.length)];
-  await runWrite(
-    `
-      MATCH (author:User {id: $authorId})
-      CREATE (post:Post {
-        id: $postId,
-        content: $content,
-        createdAt: $createdAt
-      })
-      CREATE (author)-[:AUTHORED]->(post)
-    `,
-    {
-      authorId,
-      postId: createId("post"),
-      content,
-      createdAt: new Date().toISOString()
-    }
-  );
-
-  return true;
-}
-
 export async function listUsers(viewerId, { limit = 50, offset = 0 } = {}) {
   const result = await runRead(
     `
@@ -385,14 +328,7 @@ export async function getPostList(viewerId, { limit = 20, offset = 0 } = {}) {
     { viewerId, limit: Number(limit), offset: Number(offset) }
   );
 
-  const posts = result.records.map((record) => record.get("post"));
-
-  if (posts.length) {
-    return posts;
-  }
-
-  const createdFallbackPost = await createFallbackPostIfFeedEmpty(viewerId);
-  return createdFallbackPost ? getPostList(viewerId, { limit, offset }) : posts;
+  return result.records.map((record) => record.get("post"));
 }
 
 export async function getPostById(postId, viewerId) {
@@ -959,13 +895,14 @@ export async function followUser(viewerId, targetId) {
     throw new Error("Bir kullanici kendini takip edemez.");
   }
 
-  await runWrite(
+  const result = await runWrite(
     `
       MATCH (viewer:User {id: $viewerId})
       MATCH (target:User {id: $targetId})
       MERGE (viewer)-[rel:FOLLOWS]->(target)
       SET rel.createdAt = coalesce(rel.createdAt, $createdAt),
           rel.weight = 1
+      RETURN rel
     `,
     {
       viewerId,
@@ -973,19 +910,32 @@ export async function followUser(viewerId, targetId) {
       createdAt: new Date().toISOString()
     }
   );
+
+  if (!result.records.length) {
+    throw new AppError("Takip edilecek kullanici bulunamadi.", 404);
+  }
 }
 
 export async function unfollowUser(viewerId, targetId) {
   assertRequired(viewerId, "Takip eden kullanici secilmedi.");
   assertRequired(targetId, "Takipten cikilacak kullanici secilmedi.");
 
-  await runWrite(
+  const result = await runWrite(
     `
-      MATCH (:User {id: $viewerId})-[rel:FOLLOWS]->(:User {id: $targetId})
+      MATCH (viewer:User {id: $viewerId})
+      MATCH (target:User {id: $targetId})
+      OPTIONAL MATCH (viewer)-[rel:FOLLOWS]->(target)
+      WITH rel
+      WHERE rel IS NOT NULL
       DELETE rel
+      RETURN count(rel) AS deletedCount
     `,
     { viewerId, targetId }
   );
+
+  if (!result.records.length || Number(result.records[0].get("deletedCount")) === 0) {
+    throw new AppError("Takip iliskisi bulunamadi.", 404);
+  }
 }
 
 export async function createPost(payload) {
@@ -1011,7 +961,7 @@ export async function createPost(payload) {
   };
 
   try {
-    await runWrite(
+    const result = await runWrite(
       `
         MATCH (author:User {id: $authorId})
         CREATE (post:Post {
@@ -1026,9 +976,14 @@ export async function createPost(payload) {
               post.mediaName = $post.mediaName
         )
         CREATE (author)-[:AUTHORED]->(post)
+        RETURN post.id AS postId
       `,
       { authorId, post }
     );
+
+    if (!result.records.length) {
+      throw new AppError("Paylasim yapacak kullanici bulunamadi.", 404);
+    }
   } catch (error) {
     await removeSavedUpload(media);
     throw error;
@@ -1139,12 +1094,13 @@ export async function likePost(userId, postId) {
   assertRequired(userId, "Begenecek kullanici secilmedi.");
   assertRequired(postId, "Begenilecek gonderi bulunamadi.");
 
-  await runWrite(
+  const result = await runWrite(
     `
       MATCH (user:User {id: $userId})
       MATCH (post:Post {id: $postId})
       MERGE (user)-[rel:LIKED]->(post)
       SET rel.createdAt = coalesce(rel.createdAt, $createdAt)
+      RETURN rel
     `,
     {
       userId,
@@ -1152,19 +1108,32 @@ export async function likePost(userId, postId) {
       createdAt: new Date().toISOString()
     }
   );
+
+  if (!result.records.length) {
+    throw new AppError("Begenilecek gonderi bulunamadi.", 404);
+  }
 }
 
 export async function unlikePost(userId, postId) {
   assertRequired(userId, "Begeni kaldiracak kullanici secilmedi.");
   assertRequired(postId, "Gonderi bulunamadi.");
 
-  await runWrite(
+  const result = await runWrite(
     `
-      MATCH (:User {id: $userId})-[rel:LIKED]->(:Post {id: $postId})
+      MATCH (user:User {id: $userId})
+      MATCH (post:Post {id: $postId})
+      OPTIONAL MATCH (user)-[rel:LIKED]->(post)
+      WITH rel
+      WHERE rel IS NOT NULL
       DELETE rel
+      RETURN count(rel) AS deletedCount
     `,
     { userId, postId }
   );
+
+  if (!result.records.length || Number(result.records[0].get("deletedCount")) === 0) {
+    throw new AppError("Begeni bulunamadi.", 404);
+  }
 }
 
 export async function createComment(payload) {

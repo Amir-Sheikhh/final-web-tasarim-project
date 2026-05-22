@@ -3,6 +3,8 @@ import crypto from "node:crypto";
 
 dotenv.config();
 
+const isProduction = process.env.NODE_ENV === "production";
+
 function flag(value, fallback = false) {
   if (value === undefined) {
     return fallback;
@@ -21,7 +23,7 @@ export const appConfig = {
     username: process.env.NEO4J_USERNAME ?? "neo4j",
     password: process.env.NEO4J_PASSWORD ?? "neo4j",
     database: process.env.NEO4J_DATABASE ?? "neo4j",
-    authDisabled: flag(process.env.NEO4J_AUTH_DISABLED, true)
+    authDisabled: flag(process.env.NEO4J_AUTH_DISABLED, false)
   },
   jwt: {
     secret:
@@ -30,7 +32,7 @@ export const appConfig = {
     accessTokenTtl: process.env.JWT_ACCESS_TTL ?? "15m",
     accessCookieMinutes: Number(process.env.JWT_ACCESS_COOKIE_MINUTES ?? 15),
     refreshDays: Number(process.env.JWT_REFRESH_DAYS ?? 7),
-    cookieSecure: flag(process.env.COOKIE_SECURE, false)
+    cookieSecure: flag(process.env.COOKIE_SECURE, isProduction)
   },
   rateLimit: {
     authWindowMs: 60 * 1000,
@@ -41,3 +43,7 @@ export const appConfig = {
     writeMax: 40
   }
 };
+
+if (isProduction && !process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET must be set in production.");
+}

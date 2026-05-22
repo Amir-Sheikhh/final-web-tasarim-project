@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import test from "node:test";
 import {
   comparePassword,
@@ -47,6 +48,21 @@ test("signed access token can be verified", () => {
   assert.equal(payload.sub, "user-1");
   assert.equal(payload.email, "user@example.com");
   assert.equal(payload.role, "member");
+});
+
+test("production config requires an explicit JWT secret", () => {
+  const result = spawnSync(process.execPath, ["--input-type=module", "-e", "await import('./src/config.js')"], {
+    cwd: process.cwd(),
+    env: {
+      ...process.env,
+      NODE_ENV: "production",
+      JWT_SECRET: ""
+    },
+    encoding: "utf8"
+  });
+
+  assert.notEqual(result.status, 0);
+  assert.match(`${result.stderr}${result.stdout}`, /JWT_SECRET must be set in production/);
 });
 
 test("content security policy blocks inline scripts", async () => {

@@ -48,6 +48,10 @@ test("signup, session, notifications, logout, login, and demo access work end to
   const notificationResponse = await agent.get("/api/notifications").expect(200);
   assert.ok(Array.isArray(notificationResponse.body.notifications));
 
+  await agent.post("/api/follows").send({ targetId: "missing-user" }).expect(404);
+  await agent.post("/api/posts/missing-post/like").expect(404);
+  await agent.delete("/api/posts/missing-post/like").expect(404);
+
   await agent.post("/api/auth/logout").expect(204);
   await agent.get("/api/auth/me").expect(401);
 
