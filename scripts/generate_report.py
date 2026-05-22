@@ -45,8 +45,8 @@ PROJECT_FACTS = {
     "dashboard_min_ms": "332",
     "dashboard_max_ms": "596",
     "dashboard_samples": "458, 513, 435, 430, 515, 596, 376, 409, 332, 483",
-    "tests_passed": "7",
-    "tests_stack": "node:test uzerinden validation ve security odakli unit testler",
+    "tests_passed": "61",
+    "tests_stack": "node:test, Supertest, c8 coverage, validation/security/route/frontend smoke ve Neo4j entegrasyon testleri",
     "runtime_status": "GDS ve APOC eklentileri yerel Neo4j runtime icinde aktif"
 }
 
@@ -917,8 +917,9 @@ def render_abstracts(doc: Document) -> None:
         Proje sonunda calisir durumdaki full-stack bir web uygulamasi, OpenAPI dokumantasyonu, yerel kurulum scriptleri,
         mimari karar kayitlari ve ekran goruntuleri ile desteklenen kapsamli bir teslim elde edilmistir. {measure_date}
         tarihinde alinan 10 ornek dashboard isteginde ortalama API suresi {avg} ms olarak olculmus, en dusuk deger
-        {min_} ms ve en yuksek deger {max_} ms olmustur. Ayrica repo icindeki 7 adet validation/security unit testi
-        basariyla gecmistir. GraphLink, teslim amacli bir demo olmasina ragmen, graph tabanli dusunmenin sosyal urun
+        {min_} ms ve en yuksek deger {max_} ms olmustur. Ayrica repo icindeki 61 testlik kalite paketi
+        yerel ortamda basariyla calismistir; Neo4j'e bagimli testler CI'da canli servisle kosacak sekilde ayarlanmistir.
+        GraphLink, teslim amacli bir demo olmasina ragmen, graph tabanli dusunmenin sosyal urun
         tasarimi, aciklanabilir tavsiye sistemleri ve egitim amacli graph analitigi icin pratik bir temel sundugunu
         gostermektedir.
         """.format(
@@ -957,8 +958,9 @@ def render_abstracts(doc: Document) -> None:
         The result is a working full-stack deliverable supported by architecture notes, ADR documents, OpenAPI
         documentation, local setup scripts, and real screenshots captured from the running system. On {measure_date},
         a local measurement session recorded an average dashboard response time of {avg} ms across ten samples, with a
-        minimum of {min_} ms and a maximum of {max_} ms. In addition, seven validation and security-oriented unit tests
-        passed successfully. Although GraphLink is intentionally scoped as an academic prototype rather than a production
+        minimum of {min_} ms and a maximum of {max_} ms. In addition, the repository now contains a 61-test quality
+        package covering validation, security, route behavior, frontend smoke checks, and database-backed integration
+        paths in CI. Although GraphLink is intentionally scoped as an academic prototype rather than a production
         SaaS product, it demonstrates that graph-first modeling provides a clear and practical foundation for social
         network traversal, explainable recommendations, and educational graph analytics.
         """.format(
@@ -1067,7 +1069,7 @@ def render_intro(doc: Document) -> None:
         Basari kriterleri MVP icin su sekilde tanimlanmistir: (1) kullanicinin demo hesapla 1 dakika icinde sisteme
         girebilmesi, (2) dashboard uzerinde sosyal ve graph metriklerinin ayni ekranda gosterilmesi, (3) en az 10
         REST endpoint'in dokumante edilmesi, (4) GDS eklentileri aktifken topluluk ve path analizi sonucunun alinmasi,
-        (5) temel validation ve security testlerinin gecmesi. Bu raporun ilerleyen bolumlerinde bu kriterlerin ne
+        (5) validation, security, route ve entegrasyon testlerinin gecmesi. Bu raporun ilerleyen bolumlerinde bu kriterlerin ne
         olcude karsilandigi ayri ayri degerlendirilmektedir.
         """,
     )
@@ -1306,7 +1308,7 @@ def render_market(doc: Document) -> None:
         [
             [
                 "Yerel ve maliyetsiz demo\nGercek auth + API + analytics bir arada\nTurkce ve aciklanabilir arayuz",
-                "CI/CD ve E2E eksik\nProduction-grade degil\nKucuk test kapsami",
+                "E2E tarayici otomasyonu sinirli\nProduction-grade degil\nBuyuk veri benchmark'i yok",
                 "Universite ve bootcamp kullanimlari\nGraph analytics egitim urunu olma potansiyeli\nTurkce kaynak eksigini kapatma",
                 "Hazir SaaS rakipleri\nNeo4j disi graph ekosistemlerinin buyumesi\nOgrenci projesi olceginden cikis zorlugu",
             ]
@@ -1700,13 +1702,14 @@ def render_security_perf_test(doc: Document) -> None:
     add_paragraphs(
         doc,
         """
-        Mevcut repo'da toplam 7 test bulunmaktadir ve hepsi basariyla gecmistir. Testler iki dosyada toplanmistir:
-        security.test.js ve validation.test.js. Ilk grup normalizeEmail, password hash/compare, token imzalama ve
-        hashToken davranisini; ikinci grup ise register/login schema validation kurallarini dogrular.
+        Mevcut repo'da toplam 61 test bulunmaktadir. Yerel Neo4j servisi olmayan makinede 57 test gecmis, 4 adet
+        veritabani bagimli test otomatik skip edilmistir. GitHub Actions akisi Neo4j servis konteyneri baslattigi icin
+        bu entegrasyon testleri CI ortaminda canli veritabaniyla kosacak sekilde ayarlanmistir.
 
-        Bu durum test piramidinin tabaninda oldukca guclu bir validation/security odaği oldugunu, fakat integration ve
-        E2E katmanlarinin henuz backlog'ta kaldigini gosterir. Dolayisiyla test stratejisi "minimum guvenlik + veri
-        dogrulama guvencesi" saglar; production seviyesi degildir.
+        Test paketi validation schema kurallari, security helper'lari, CSP kontrolu, sosyal route negative-path
+        davranislari, frontend static asset smoke testleri, monitoring ve auth akisini kapsar. Ayrica c8 ile coverage
+        raporu uretilir ve npm audit orta seviye zaafiyetlere kadar pipeline icinde kontrol edilir. Eksik kalan ana alan,
+        tarayici tabanli Playwright/Cypress E2E senaryolari ve buyuk veri seti performans benchmark'idir.
         """,
     )
 
@@ -1864,9 +1867,11 @@ def render_conclusion(doc: Document) -> None:
         modeli, sosyal etkileşimler, algorithm paneli, dokumantasyon ve yerel kurulum scriptleri ayni repo icinde
         calisir durumdadir. En guclu taraf, kullanici davranisi ile graph analitigi ayni arayuzde gosterebilmesidir.
 
-        Bununla birlikte proje henuz production hazirligi seviyesinde degildir. En kritik aciklar; E2E test eksikligi,
-        sinirli monitoring, kurumsal guvenlik ozelliklerinin olmamasi ve cok daha buyuk veri setlerinde benchmark
-        alinmamis olmasidir. Yine de final projesi baglaminda teknik hedeflerin savunulabilir oldugu aciktir.
+        Bununla birlikte proje henuz production hazirligi seviyesinde degildir. En kritik kalan aciklar; tarayici
+        tabanli E2E test eksikligi, sinirli monitoring, kurumsal olcekli operasyon ozelliklerinin olmamasi ve cok daha
+        buyuk veri setlerinde benchmark alinmamis olmasidir. Son guncellemeyle guvenlik varsayilanlari daha kapali hale
+        getirilmis, CI'daki veritabani testleri aktif edilmistir. Final projesi baglaminda teknik hedeflerin
+        savunulabilir oldugu aciktir.
         """,
     )
 
@@ -1886,8 +1891,8 @@ def render_conclusion(doc: Document) -> None:
     add_bullets(
         doc,
         [
-            "V2: Gercek zamanli guncelleme, notification ve live graph refresh",
-            "V2: Cypress/Playwright E2E senaryolari ve CI pipeline",
+            "V2: Live graph refresh ve notification deneyimini genisletme",
+            "V2: Cypress/Playwright E2E senaryolari ve gorsel regresyon kontrolleri",
             "V2: TR + EN i18n ve resmi accessibility audit",
             "V3: GraphRAG / knowledge graph senaryolari",
             "V3: Aciklanabilir recommendation aciklamalarini LLM destekli hale getirme",
