@@ -160,6 +160,8 @@ Projede tek test runner kullanilir: `node --test`. Neo4j calismiyorsa database e
 .
 ├── README.md
 ├── README.en.md
+├── repo/
+│   └── README.md              # Teslim sablonu icin kaynak kodu konum rehberi
 ├── PROJE-RAPORU.md
 ├── PROJE-RAPORU-SABLON.docx
 ├── docs/
