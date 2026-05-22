@@ -1,84 +1,110 @@
-# GraphLink Social - Neo4j Graph DB Sosyal Ag
+# Neo4j Graph DB Sosyal Ag
+
+> **Neo4j ile sosyal ag grafigi - "arkadasin arkadasi" sorgulari ve aciklanabilir graph analizi**
 
 [![CI](https://github.com/Amir-Sheikhh/final-web-tasarim-project/actions/workflows/ci.yml/badge.svg)](https://github.com/Amir-Sheikhh/final-web-tasarim-project/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Node.js](https://img.shields.io/badge/Node.js-20+-green.svg)](https://nodejs.org/)
-[![Coverage](https://img.shields.io/badge/coverage-c8%20report-blue.svg)](CHANGELOG.md)
+![Zorluk](https://img.shields.io/badge/Zorluk-Cok%20Zor-blueviolet)
+![Puan](https://img.shields.io/badge/Puan-60-blue)
+![Hafta](https://img.shields.io/badge/Hafta-4-gray)
+[![Lisans](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+![Durum](https://img.shields.io/badge/Durum-Development-yellow)
+![Node.js](https://img.shields.io/badge/Node.js-20+-green)
+![Coverage](https://img.shields.io/badge/coverage-c8%20report-blue)
 
-BMU1208 Web Tabanli Programlama final projesi. GraphLink, Neo4j graph database uzerinde kullanici, takip, gonderi, begeni, yorum ve oturum verilerini modelleyen full-stack bir sosyal ag onerisi demosudur.
+## Ozet
 
-## Reviewer Quick Links
+GraphLink, Neo4j uzerinde kullanici, takip, gonderi, begeni, yorum, mesaj ve oturum verilerini property graph modeliyle tutan full-stack sosyal ag demosudur. Proje, iliski yogun sosyal ag problemlerini klasik JOIN zincirleri yerine graph traversal, shortest path, mutual connection ve community detection yaklasimlariyla gosterir.
 
-Repo linki ile inceleme yapan araclar bazen sadece README ve dosya agacini okuyor; kaynak kod kanitlari icin baslangic dosyasi: [`REVIEW.md`](REVIEW.md).
+Uygulama BMU1208 Web Tabanli Programlama final projesi icin gelistirildi. Hedef kitle; graph database ogrenmek isteyen ogrenciler, sosyal ag MVP'si prototiplemek isteyen gelistiriciler ve aciklanabilir tavsiye sistemlerini gormek isteyen teknik degerlendiricilerdir.
 
-Tek dosyada kaynak inceleme paketi: [`docs/code-review-bundle.md`](docs/code-review-bundle.md).
+## Demo
 
-Gelistirme gecmisi kaniti: [`docs/development-history.md`](docs/development-history.md).
+**Canli Demo:** Bu teslim yerel calisan demo olarak paketlenmistir. Calistirdiktan sonra: `http://localhost:3000`  
+**API Docs:** `http://localhost:3000/docs`  
+**Neo4j Browser:** `http://127.0.0.1:7474`
 
-Son dogrulanan durum:
+**Demo Hesaplari:** Uygulama icindeki `Demo Users` panelinden listelenir. Varsayilan ortak sifre: `demo12345`
 
-- Branch: `main`
-- Commit count: `27+`
-- Quality gates: `npm run check:status`, `npm run lint`, `npm run test:coverage`
-- Test coverage: c8 coverage report generated in CI/CD
+Ornek demo hesaplari:
 
-En kritik kanit dosyalari:
+- `aleyna@graphlink.local` / `demo12345`
+- `emir@graphlink.local` / `demo12345`
+- `kerem@graphlink.local` / `demo12345`
 
-- Express app, CSP ve body limit: [`src/server.js`](src/server.js)
-- Auth, refresh rotation ve password hashing: [`src/services/authService.js`](src/services/authService.js)
-- Graph endpointleri: [`src/routes/graph.js`](src/routes/graph.js)
-- Social route negative-path testleri: [`test/socialRoutes.test.js`](test/socialRoutes.test.js)
-- Security tests: [`test/security.test.js`](test/security.test.js)
-- CI + Neo4j service: [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
-- Dependency hygiene: [`package.json`](package.json), [`package-lock.json`](package-lock.json)
-- Commit history: [`docs/development-history.md`](docs/development-history.md)
+### Ekran Goruntuleri
 
-Son dogrulama komutlari:
+| Landing | Dashboard | Mobile |
+|---------|-----------|--------|
+| ![landing](screenshots/landing.png) | ![dashboard](screenshots/dashboard.png) | ![mobile](screenshots/mobile-dashboard.png) |
 
-```bash
-npm run check:status
-npm run lint
-npm test
-```
+| Users | Posts | Graph |
+|-------|-------|-------|
+| ![users](screenshots/users-panel.png) | ![posts](screenshots/posts-panel.png) | ![graph](screenshots/graph-panel.png) |
 
-## Hazirlayan
+## Ana Ozellikler
 
-- Ad Soyad: AMIR SHEIKH
-- Ogrenci No: 24080410155
+- Kullanici, follow, post, comment, message ve session node/relationship modeli
+- "Arkadasin arkadasi" onerisi ve 2-hop traversal
+- Ortak baglantilar ve mutual connection analizi
+- Skorlanmis ve aciklanabilir kullanici onerileri
+- En kisa yol analizi
+- Louvain community detection
+- PageRank liderleri
+- FastRP embedding onizlemesi
+- Cytoscape.js ile web icinde graph gorsellestirme
+- JWT access token + HttpOnly refresh cookie session modeli
+- Refresh token rotation ve Neo4j `Session` node'lari
+- Mesajlasma, bildirim merkezi, profil guncelleme ve medya yukleme
+- Guvenli payload sinirlari: JSON body limit varsayilan `12mb`, post medya yukleme limiti 8 MB
+- REST API, OpenAPI 3.1 ve Swagger UI
+- Docker Compose ile Node.js uygulamasi + Neo4j service kurulumu
+- GitHub Actions CI: `npm ci`, `npm run check:status`, `docker compose config`, `npm run lint`, `npm audit`, Neo4j seed ve `npm run test:coverage`
 
-## Demo / Ekran Goruntuleri
+## Tech Stack
 
-Ekran goruntuleri `screenshots/` klasorundedir.
+**Database:** `Neo4j 5 Community`, `Cypher query language`, `APOC library`, `Graph Data Science library`  
+**Backend:** `Node.js + Express + neo4j-driver`  
+**Frontend:** `HTML + CSS + Vanilla JavaScript + Cytoscape.js`  
+**Auth:** `JWT access token + HttpOnly refresh cookie`  
+**Deployment:** `Docker Compose veya yerel Neo4j runtime`  
+**Test:** `node --test`, `Supertest`, `c8 coverage`, `ESLint`
 
-![Landing](screenshots/landing.png)
-![Dashboard](screenshots/dashboard.png)
-![Graph Panel](screenshots/graph-panel.png)
+Teknoloji secimlerinin detayli gerekcesi: [PROJE-RAPORU.md - Bolum 4](PROJE-RAPORU.md#4-teknoloji-yigini-tech-stack)
 
-## Kullanilan Teknolojiler
+## Mimari
 
-- Backend: Node.js, Express, neo4j-driver
-- Database: Neo4j Community, Cypher Query Language
-- Graph algoritmalari: Neo4j Graph Data Science, APOC
-- Frontend: HTML, CSS, Vanilla JavaScript, Cytoscape.js
-- Auth: JWT access token + HttpOnly refresh cookie
-- Security / validation: Helmet, cookie-parser, Zod, bcryptjs, rate limiting
-- API dokumantasyonu: OpenAPI 3.1 + Swagger UI
-- Test: Node.js built-in test runner (`node --test`), Supertest
+GraphLink mimarisi uc ana parcadan olusur:
 
-## Kurulum Adimlari
+- **Client:** `public/index.html`, `public/styles.css`, `public/app.js`
+- **API:** Express server, route/service katmani, auth middleware, validation ve rate limit
+- **Database:** Neo4j Community, Cypher sorgulari, GDS/APOC graph algoritmalari
+
+![Container Diagram](docs/report-assets/container-diagram.png)
+
+Detayli mimari, C4 diyagramlari ve ADR'lar: [PROJE-RAPORU.md - Bolum 5](PROJE-RAPORU.md#5-sistem-mimarisi)
+
+## Kurulum
+
+### Gereksinimler
+
+- Node.js >= 20
+- npm
+- Docker Desktop veya calisan Neo4j 5 runtime
+- Git
 
 ### Docker Compose ile tek komut
 
-Docker kuruluysa uygulama ve Neo4j birlikte baslatilabilir:
-
 ```bash
+git clone https://github.com/Amir-Sheikhh/final-web-tasarim-project.git
+cd final-web-tasarim-project
+npm install
 npm run docker:up
 ```
 
-Bu komut `docker-compose.yml` icindeki iki servisi ayaga kaldirir:
+Bu komut `docker-compose.yml` icindeki iki servisi baslatir:
 
 - `app`: Node.js / Express uygulamasi, `http://localhost:3000`
-- `neo4j`: Neo4j Community, `http://localhost:7474` ve `bolt://localhost:7687`
+- `neo4j`: Neo4j service, `http://localhost:7474` ve `bolt://localhost:7687`
 
 Kapatmak icin:
 
@@ -86,158 +112,123 @@ Kapatmak icin:
 npm run docker:down
 ```
 
-### Yerel Node kurulumu
-
-1. Repoyu klonlayin.
+### Yerel Node + Neo4j kurulumu
 
 ```bash
+# 1) Repo'yu klonla
 git clone https://github.com/Amir-Sheikhh/final-web-tasarim-project.git
 cd final-web-tasarim-project
-```
 
-2. Bagimliliklari kurun.
-
-```bash
-npm install
-```
-
-3. Ortam dosyasini hazirlayin.
-
-```bash
+# 2) Environment dosyasi
 cp .env.example .env
-```
+# .env icinde NEO4J_PASSWORD, JWT_SECRET ve gerekirse COOKIE_SECURE degerlerini duzenleyin
 
-4. Neo4j servisini cross-platform Docker akisiyle hazirlayin.
+# 3) Bagimliliklari yukle
+npm install
 
-```bash
+# 4) Neo4j servisini hazirla ve baslat
 npm run neo4j:setup
-```
-
-5. Neo4j'i baslatin.
-
-```bash
 npm run neo4j:start
-```
 
-Windows'ta Docker kullanmak istemeyenler icin eski PowerShell tabanli yerel runtime komutlari da korunur:
-
-```bash
+# Windows PowerShell alternatifi
 npm run neo4j:setup:windows
 npm run neo4j:start:windows
-```
 
-6. Demo graph verisini yukleyin.
-
-```bash
+# 5) Demo graph verisini yukle
 npm run seed:graph
-```
 
-## Nasil Calistirilir
-
-```bash
+# 6) Calistir
 npm run dev
 ```
 
-Uygulama: `http://localhost:3000`
+Proje: `http://localhost:3000`
 
-API dokumantasyonu:
-
-- Swagger UI: `http://localhost:3000/docs`
-- OpenAPI YAML: `http://localhost:3000/openapi.yaml`
-- Neo4j Browser: `http://127.0.0.1:7474`
-
-Test:
+## Test
 
 ```bash
 npm test
-```
-
-Lint:
-
-```bash
+npm run test:coverage
 npm run lint
-```
-
-Projede tek test runner kullanilir: Node.js built-in test runner. Vitest bagimliligi ozellikle kaldirildi; boylece `node --test` ile package lock arasinda runner uyumsuzlugu yoktur.
-
-Neo4j calismiyorsa database entegrasyon testleri otomatik olarak skip edilir; validation ve security unit testleri calisir.
-
-Repo kalite kontrolu:
-
-```bash
 npm run check:status
 ```
 
-CI:
+Projede tek test runner kullanilir: `node --test`. Neo4j calismiyorsa database entegrasyon testleri yerelde otomatik skip edilir; CI ortaminda Neo4j service baslatildigi icin DB testleri de kosar.
 
-- GitHub Actions workflow: `.github/workflows/ci.yml`
-- Her push ve pull request icin `npm ci`, `npm run check:status`, `docker compose config`, `npm run lint`, Neo4j service seed ve `npm test` calisir.
-
-## Proje Yapisi
+## Klasor Yapisi
 
 ```text
-src/
-  server.js              Express app ve route baglantilari
-  config.js              Ortam degiskenleri ve rate limit ayarlari
-  db/                    Neo4j driver, seed ve constraint islemleri
-  middleware/            Auth, validation, rate limit, request logger
-  routes/                Auth, social, graph ve monitoring endpointleri
-  services/              Auth, sosyal ag ve graph query is kurallari
-  validation/            Zod semalari
-public/                  Frontend HTML, CSS, JS ve statik assetler
-docs/                    Final raporu, OpenAPI, ADR, diyagramlar
-  GraphLink_Gamma_Sunum_Turkce_fixed_working.pptx
-screenshots/             Demo ekran goruntuleri
-scripts/                 Neo4j kurulum/baslatma ve rapor uretimi
-test/                    Unit ve integration testleri
+.
+├── README.md
+├── README.en.md
+├── PROJE-RAPORU.md
+├── PROJE-RAPORU-SABLON.docx
+├── docs/
+│   ├── GraphLink_Final_Raporu.docx
+│   ├── GraphLink_Gamma_Sunum_Turkce_fixed_working.pptx
+│   ├── openapi.yaml
+│   ├── swagger.html
+│   ├── adr/
+│   ├── diagrams/
+│   └── report-assets/
+├── screenshots/
+├── public/
+├── src/
+├── scripts/
+├── test/
+├── Dockerfile
+├── docker-compose.yml
+├── .github/workflows/ci.yml
+├── CONTRIBUTING.md
+├── CODE_OF_CONDUCT.md
+├── SECURITY.md
+├── DEPLOYMENT.md
+├── CHANGELOG.md
+├── REVIEW.md
+└── LICENSE
 ```
-
-## One Cikan Ozellikler
-
-- Neo4j property graph modeli: `User`, `Post`, `Session` node tipleri.
-- Iliski modeli: `FOLLOWS`, `AUTHORED`, `LIKED`, `HAS_SESSION`, yorum ve bildirim akislari.
-- Arkadasin arkadasi sorgulari: 2-hop traversal ile ikinci derece baglantilar.
-- Iliski tabanli oneriler: mutual connection, takip ve begeni sinyallerinden aciklanabilir oneriler.
-- Benzer icerik mantigi: kullanicinin begendigi gonderilerden ve benzer sosyal sinyallerden feed/recommendation uretimi.
-- Graph analizi: Louvain community, PageRank, FastRP embedding preview, shortest path.
-- Cytoscape.js ile web icinde network gorsellestirme.
-- Neo4j Browser ile graph verisini ayrica inceleme.
-- JWT auth, refresh rotation, logout session revoke.
-- OpenAPI 3.1 dokumantasyonu ve Swagger UI.
-
-## Karsilasilan Zorluklar ve Cozumler
-
-- Graph DB paradigmasi: SQL tablolari yerine node-edge-property modeli kuruldu. Sosyal ag icin iliskiler dogrudan graph relationship olarak tasarlandi.
-- Cypher sorgulari: Arkadasin arkadasi, mutual connection ve recommendation sorgulari servis katmaninda parcalanarak okunabilir hale getirildi.
-- GDS/APOC kurulumu: Docker Compose varsayilan cross-platform akistir; Windows PowerShell runtime komutlari alternatif olarak korunur.
-- Auth guvenligi: Tokenlar localStorage yerine HttpOnly cookie ile tutuldu; refresh token hashlenerek Neo4j session node'unda saklandi.
-- Demo tekrarlanabilirligi: `npm run seed:graph` komutu ile ayni graph verisi tekrar uretilebilir hale getirildi.
-- Payload guvenligi: JSON body limit varsayilan olarak `12mb`; post medya yuklemeleri 8 MB binary limit ile sinirlandirilir.
-
-## Kaynaklar
-
-- Neo4j Documentation: https://neo4j.com/docs/
-- Cypher Manual: https://neo4j.com/docs/cypher-manual/current/
-- Neo4j Graph Data Science: https://neo4j.com/docs/graph-data-science/current/
-- APOC Documentation: https://neo4j.com/docs/apoc/current/
-- Cytoscape.js Documentation: https://js.cytoscape.org/
-- Express Documentation: https://expressjs.com/
-- OWASP Top 10: https://owasp.org/Top10/
-- OpenAPI Specification: https://spec.openapis.org/oas/latest.html
 
 ## Dokumantasyon
 
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Katki yapma kilavuzu ve kod kalite standartlari
-- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Topluluk davraniş kodlari
-- **[SECURITY.md](SECURITY.md)** - Guvenlik politikasi ve zafiyet bildirim süreci
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Uretim ortamina yazilim dagitim kilavuzu
-- **[CHANGELOG.md](CHANGELOG.md)** - Surum gecmisi ve degisiklikler
-- **[API Dokumantasyonu](http://localhost:3000/docs)** - OpenAPI/Swagger UI (yerel calistirildiginda)
+- [PROJE-RAPORU.md](PROJE-RAPORU.md) - uzun form final raporu, markdown ozet/harita
+- [PROJE-RAPORU-SABLON.docx](PROJE-RAPORU-SABLON.docx) - uzun form final raporu, Word teslim dosyasi
+- [docs/GraphLink_Final_Raporu.docx](docs/GraphLink_Final_Raporu.docx) - repo icindeki asil DOCX rapor kopyasi
+- [REVIEW.md](REVIEW.md) - reviewer entry points ve kaynak kod kanitlari
+- [docs/code-review-bundle.md](docs/code-review-bundle.md) - tek dosyada kaynak inceleme paketi
+- [docs/development-history.md](docs/development-history.md) - commit ve gelistirme gecmisi
+- [CONTRIBUTING.md](CONTRIBUTING.md) - katki yapma kilavuzu ve kod kalite standartlari
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) - topluluk davranis kodlari
+- [SECURITY.md](SECURITY.md) - guvenlik politikasi ve zafiyet bildirim sureci
+- [DEPLOYMENT.md](DEPLOYMENT.md) - uretim ortamina yazilim dagitim kilavuzu
+- [CHANGELOG.md](CHANGELOG.md) - surum gecmisi ve degisiklikler
 
-## Degisiklik Gecmisi
+## Roadmap
 
-Detayli surum gecmisi icin [CHANGELOG.md](CHANGELOG.md) dosyasini inceleyin.
+- [x] V1 - MVP: auth, social graph, posts, likes, comments, messaging, dashboard, OpenAPI
+- [x] V1 - CI, lint, coverage, Docker Compose ve Neo4j service
+- [ ] V2 - Playwright/Cypress E2E ve gorsel regresyon testleri
+- [ ] V2 - Live graph refresh ve daha gelismis notification deneyimi
+- [ ] V3 - GraphRAG / LLM ile sosyal ag analizi soru-cevap chatbot'u
+
+## Katki
+
+Bu proje **BMU1208 Web Tabanli Programlama** dersi kapsaminda **Bitlis Eren Universitesi** - **Bilgisayar Muhendisligi** bolumunde bir final odevi olarak gelistirilmistir.
+
+Ders yurutucusu: **Dr. Ogr. Uyesi Davut ARI**
+
+Kod katkisi beklenmez, ancak fikir / feedback icin issue acabilirsiniz.
 
 ## Lisans
 
-MIT. Ayrinti icin `LICENSE` dosyasina bakiniz.
+MIT © 2026 **AMIR SHEIKH** - Tam metin icin [LICENSE](LICENSE).
+
+## Iletisim
+
+- **Ogrenci:** AMIR SHEIKH
+- **Ogrenci No:** 24080410155
+- **E-posta:** laldinsheikh070@gmail.com
+- **Ders:** BMU1208 - Web Tabanli Programlama
+- **Kurum:** Bitlis Eren Universitesi - Muhendislik-Mimarlik Fakultesi
+
+---
+
+<sub>Bu projede AI destekli kodlama ve dokumantasyon araclari yardimci olarak kullanilmistir. Mimari kararlar, teknoloji tercihleri ve final teslim sorumlulugu ogrenciye aittir.</sub>
