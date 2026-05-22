@@ -52,28 +52,100 @@ PROJECT_FACTS = {
 
 
 REFERENCES = [
-    "[1] Fortune Business Insights. (2026). Graph Database Market Size, Share & Industry Analysis. "
-    "https://www.fortunebusinessinsights.com/graph-database-market-105916",
-    "[2] Neo4j. (2026). Neo4j Community Edition. https://neo4j.com/product/community-edition/",
-    "[3] Neo4j. (2026). Neo4j Pricing. https://neo4j.com/pricing/",
-    "[4] Neo4j. (2026). Cypher Manual - Introduction. https://neo4j.com/docs/cypher-manual/current/introduction/",
-    "[5] Neo4j. (2026). Neo4j Graph Data Science Library Manual v2026.03. "
-    "https://neo4j.com/docs/graph-data-science/current/",
-    "[6] Neo4j. (2026). APOC Core Documentation - Introduction. https://neo4j.com/docs/apoc/current/introduction/",
-    "[7] Cytoscape.js. (2026). Cytoscape.js Documentation. https://js.cytoscape.org/",
-    "[8] OWASP Foundation. (2026). OWASP Top 10:2021. https://owasp.org/Top10/2021/",
-    "[9] W3C. (2025). Web Content Accessibility Guidelines (WCAG) 2.1. https://www.w3.org/TR/WCAG21/",
-    "[10] Stack Overflow. (2011). SQL query for mutual friends. https://stackoverflow.com/questions/6701090/sql-query-for-mutual-friends",
-    "[11] Stack Overflow. (2017). 'friends of friends' SQL query. https://stackoverflow.com/questions/43913201/friends-of-friends-sql-query",
-    "[12] Reddit / r/facebook. (2026, February 21). 'People You May Know' is getting creepy. "
-    "https://www.reddit.com/r/facebook/comments/1rb42e3/people_you_may_know_is_getting_creepy_looking_for/",
-    "[13] Reddit / r/facebook. (2025). Facebook 'People you may know' recommending a person who I passed in the street? "
-    "https://www.reddit.com/r/facebook/comments/1kihoma/facebook_people_you_may_know_recommending_a/",
-    "[14] Kumu. (2026). Pricing. https://www.kumu.io/pricing",
-    "[15] Kumu. (2026). About. https://kumu.io/about",
-    "[16] Linkurious. (2026). Pricing. https://linkurious.com/pricing/",
-    "[17] Linkurious. (2026). About. https://linkurious.com/about/",
-    "[18] Neo4j. (2026). Company. https://neo4j.com/company/"
+    '[1] Fortune Business Insights, "Graph Database Market Size, Share & Industry Analysis," 2026. [Online]. Available: https://www.fortunebusinessinsights.com/graph-database-market-105916. Accessed: May 22, 2026.',
+    '[2] Neo4j, "Neo4j Community Edition," 2026. [Online]. Available: https://neo4j.com/product/community-edition/. Accessed: May 22, 2026.',
+    '[3] Neo4j, "Neo4j Pricing," 2026. [Online]. Available: https://neo4j.com/pricing/. Accessed: May 22, 2026.',
+    '[4] Neo4j, "Cypher Manual: Introduction," 2026. [Online]. Available: https://neo4j.com/docs/cypher-manual/current/introduction/. Accessed: May 22, 2026.',
+    '[5] Neo4j, "Neo4j Graph Data Science Library Manual," 2026. [Online]. Available: https://neo4j.com/docs/graph-data-science/current/. Accessed: May 22, 2026.',
+    '[6] Neo4j, "APOC Core Documentation: Introduction," 2026. [Online]. Available: https://neo4j.com/docs/apoc/current/introduction/. Accessed: May 22, 2026.',
+    '[7] Cytoscape.js, "Cytoscape.js Documentation," 2026. [Online]. Available: https://js.cytoscape.org/. Accessed: May 22, 2026.',
+    '[8] OWASP Foundation, "OWASP Top 10:2021," 2026. [Online]. Available: https://owasp.org/Top10/2021/. Accessed: May 22, 2026.',
+    '[9] W3C, "Web Content Accessibility Guidelines (WCAG) 2.1," 2025. [Online]. Available: https://www.w3.org/TR/WCAG21/. Accessed: May 22, 2026.',
+    '[10] Stack Overflow, "SQL query for mutual friends," 2011. [Online]. Available: https://stackoverflow.com/questions/6701090/sql-query-for-mutual-friends. Accessed: May 22, 2026.',
+    '[11] Stack Overflow, "\'friends of friends\' SQL query," 2017. [Online]. Available: https://stackoverflow.com/questions/43913201/friends-of-friends-sql-query. Accessed: May 22, 2026.',
+    '[12] Reddit, "\'People You May Know\' is getting creepy," r/facebook, 2026. [Online]. Available: https://www.reddit.com/r/facebook/comments/1rb42e3/people_you_may_know_is_getting_creepy_looking_for/. Accessed: May 22, 2026.',
+    '[13] Reddit, "Facebook \'People you may know\' recommending a person who I passed in the street?," r/facebook, 2025. [Online]. Available: https://www.reddit.com/r/facebook/comments/1kihoma/facebook_people_you_may_know_recommending_a/. Accessed: May 22, 2026.',
+    '[14] Kumu, "Pricing," 2026. [Online]. Available: https://www.kumu.io/pricing. Accessed: May 22, 2026.',
+    '[15] Kumu, "About," 2026. [Online]. Available: https://kumu.io/about. Accessed: May 22, 2026.',
+    '[16] Linkurious, "Pricing," 2026. [Online]. Available: https://linkurious.com/pricing/. Accessed: May 22, 2026.',
+    '[17] Linkurious, "About," 2026. [Online]. Available: https://linkurious.com/about/. Accessed: May 22, 2026.',
+    '[18] Neo4j, "Company," 2026. [Online]. Available: https://neo4j.com/company/. Accessed: May 22, 2026.'
+]
+
+TOC_ENTRIES = [
+    ("BEYAN", "2"),
+    ("OZET", "3"),
+    ("ABSTRACT", "4"),
+    ("KISALTMALAR VE SIMGELER", "8"),
+    ("1. GIRIS", "8"),
+    ("2. GEREKSINIM ANALIZI - PRD", "10"),
+    ("3. PIYASA VE REKABET ANALIZI", "14"),
+    ("4. TEKNOLOJI YIGINI (TECH STACK)", "16"),
+    ("5. SISTEM MIMARISI", "22"),
+    ("6. VERI MODELI VE API TASARIMI", "25"),
+    ("7. KULLANICI ARAYUZU TASARIMI", "28"),
+    ("8. GUVENLIK, PERFORMANS VE TEST", "31"),
+    ("9. MALIYET, GELIR MODELI VE GTM", "33"),
+    ("10. UYGULAMA VE GELISTIRME", "35"),
+    ("11. SONUC VE DEGERLENDIRME", "40"),
+    ("KAYNAKCA", "41"),
+    ("EKLER", "42"),
+]
+
+FIGURE_LIST = [
+    ("Sekil 1: Sistem Context Diyagrami", "22"),
+    ("Sekil 2: Container Diyagrami", "23"),
+    ("Sekil 3: Login Akisi Sirali Diyagrami", "24"),
+    ("Sekil 4: Production Deployment Topolojisi", "24"),
+    ("Sekil 5: Property Graph Veri Modeli", "25"),
+    ("Sekil 6: Uygulama Site Haritasi", "28"),
+    ("Sekil 7: Ana Kullanici Akisi", "29"),
+    ("Sekil 8: Landing Sayfasi Wireframe", "30"),
+    ("Sekil 9: Dashboard Wireframe", "30"),
+    ("Sekil 10: Test Piramidi", "32"),
+    ("Sekil 11: Landing / Auth Ekrani", "35"),
+    ("Sekil 12: Hata Giris Durumu", "36"),
+    ("Sekil 13: Dashboard - Data Box", "36"),
+    ("Sekil 14: Kullanici Kartlari Paneli", "37"),
+    ("Sekil 15: Gonderi Akisi Paneli", "37"),
+    ("Sekil 16: Graph Analiz Paneli", "38"),
+    ("Sekil 17: Mobil Gorunum", "39"),
+    ("Sekil 18: Swagger / API Dokumantasyonu", "40"),
+]
+
+TABLE_LIST = [
+    ("Tablo 1: Kisaltmalar", "8"),
+    ("Tablo 2: MoSCoW Onceliklendirmesi", "9"),
+    ("Tablo 3: Persona 1 Karti", "10"),
+    ("Tablo 4: Persona 2 Karti", "10"),
+    ("Tablo 5: Persona Karsilastirmasi", "11"),
+    ("Tablo 6: MVP Kapsamindaki Temel Ozellikler", "11"),
+    ("Tablo 7: User Story ve Acceptance Criteria Listesi", "11"),
+    ("Tablo 8: NFR Matrisi", "13"),
+    ("Tablo 9: TAM / SAM / SOM Ozeti", "14"),
+    ("Tablo 10: Rakiplerle Ozellik Karsilastirmasi", "14"),
+    ("Tablo 11: SWOT Matrisi", "15"),
+    ("Tablo 12: Projede Kullanilan Teknoloji Katmanlari", "16"),
+    ("Tablo 13: ADR Ozet Listesi", "25"),
+    ("Tablo 14: Node Tanimi - User", "25"),
+    ("Tablo 15: Node Tanimi - Post", "26"),
+    ("Tablo 16: Node Tanimi - Session", "26"),
+    ("Tablo 17: Iliski Tanimi - FOLLOWS", "26"),
+    ("Tablo 18: Iliski Tanimi - LIKED / AUTHORED / HAS_SESSION", "26"),
+    ("Tablo 19: Constraint ve Indeks Kararlari", "27"),
+    ("Tablo 20: Ana API Endpoint'leri", "27"),
+    ("Tablo 21: Rate Limit Kararlari", "28"),
+    ("Tablo 22: Renk Paleti", "29"),
+    ("Tablo 23: Tipografi Skalasi", "29"),
+    ("Tablo 24: Responsive ve Token Stratejisi", "30"),
+    ("Tablo 25: OWASP Top 10 (2021) Uyarlama Matrisi", "31"),
+    ("Tablo 26: Performans Metrikleri ve Hedefler", "32"),
+    ("Tablo 27: Business Model Canvas", "33"),
+    ("Tablo 28: Fiyatlandirma (Varsayimsal 3 Tier)", "33"),
+    ("Tablo 29: Maliyet Analizi", "34"),
+    ("Tablo 30: Unit Economics (Varsayim)", "34"),
+    ("Tablo 31: Kullanilan Bagimliliklar", "40"),
+    ("Tablo 32: Zorluk, Cozum ve Ogrenim", "41"),
 ]
 
 
@@ -775,6 +847,15 @@ def add_code_block(doc: Document, code: str) -> None:
             run.add_break()
 
 
+def add_static_list(doc: Document, entries: list[tuple[str, str]], font_size: int = 9) -> None:
+    for title, page in entries:
+        paragraph = doc.add_paragraph()
+        paragraph.paragraph_format.space_after = Pt(1)
+        paragraph.paragraph_format.left_indent = Cm(0.2)
+        run = paragraph.add_run(f"{title}  {page}")
+        set_font(run, "Times New Roman", size=font_size)
+
+
 def add_toc(paragraph) -> None:
     run = paragraph.add_run()
     fld_begin = OxmlElement("w:fldChar")
@@ -978,27 +1059,15 @@ def render_abstracts(doc: Document) -> None:
 
 def render_front_matter(doc: Document) -> None:
     doc.add_heading("ICINDEKILER", level=1)
-    add_toc(doc.add_paragraph())
+    add_static_list(doc, TOC_ENTRIES, font_size=9)
     doc.add_page_break()
 
     doc.add_heading("SEKILLER LISTESI", level=1)
-    add_paragraphs(
-        doc,
-        """
-        Bu belgede tum sekiller "Sekil X" basliklariyla etiketlenmistir. Microsoft Word uzerinde belge acildiginda
-        References / Insert Table of Figures komutu ile otomatik sekiller listesi olusturulabilir.
-        """,
-    )
+    add_static_list(doc, FIGURE_LIST, font_size=8)
     doc.add_page_break()
 
     doc.add_heading("TABLOLAR LISTESI", level=1)
-    add_paragraphs(
-        doc,
-        """
-        Bu belgede tum tablolar "Tablo X" basliklariyla etiketlenmistir. Microsoft Word uzerinde References / Insert
-        Table of Figures komutu tablo etiketleri icin de kullanilabilir.
-        """,
-    )
+    add_static_list(doc, TABLE_LIST, font_size=7)
     doc.add_page_break()
 
     doc.add_heading("KISALTMALAR VE SIMGELER", level=1)
